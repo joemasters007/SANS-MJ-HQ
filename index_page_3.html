@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>HeroQuest – Ville</title>
+
+<style>
+:root{
+  --bg:#0c0c0f; --fg:#f2e9de; --muted:#c9b9a4; --edge:#5f4a35; --gold:#d9b66f;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--fg);font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif}
+
+.btn{
+  background:#1a1a20;border:1px solid var(--edge);color:var(--fg);
+  padding:7px 11px;border-radius:10px;cursor:pointer
+}
+
+#screen-city .wrap{max-width:1120px;margin:0 auto;padding:10px;display:flex;flex-direction:column;gap:10px;height:100vh}
+#screen-city .counters{display:flex;gap:12px;font-size:13px;color:var(--muted)}
+#screen-city .grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;flex:1}
+#screen-city .card{
+  position:relative;border:1px solid var(--edge);border-radius:12px;background:#141418;
+  display:flex;align-items:center;justify-content:center;overflow:hidden;
+  height:clamp(160px,34vh,360px)
+}
+#screen-city .card .label{
+  position:absolute;left:8px;top:8px;
+  background:rgba(0,0,0,.55);padding:4px 8px;
+  border-radius:8px;border:1px solid var(--edge);font-size:12px
+}
+#screen-city .card img{width:100%;height:100%;object-fit:cover}
+#screen-city .card.selected{
+  outline:3px solid #a00;
+  box-shadow:0 0 0 3px rgba(255,0,0,.25) inset
+}
+#screen-city .card.deck.deck-highlight{
+  outline:3px solid var(--gold);
+  box-shadow:0 0 0 3px rgba(217,182,111,.35) inset
+}
+.rules{
+  background:#151519;border:1px solid var(--edge);
+  border-radius:14px;padding:10px
+}
+
+/* Modales */
+.modal-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.65);
+  display:none;align-items:center;justify-content:center;z-index:1000
+}
+.modal-overlay.show{display:flex}
+.modal{
+  width:min(800px,90vw);
+  background:#151519;border:1px solid var(--edge);
+  border-radius:16px;overflow:hidden
+}
+.modal header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:9px 12px;border-bottom:1px solid var(--edge)
+}
+.modal .modal-body{padding:10px}
+.modal img{width:80%;height:auto;display:block;margin:0 auto}
+
+/* ===== BOUTON RETOUR AU LIVRE DES QUÊTES ===== */
+.hq-return-btn{
+  position:fixed;
+  top:14px;
+  right:14px;
+  z-index:3000;
+
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  text-transform:uppercase;
+  letter-spacing:2px;
+  font-size:12px;
+
+  padding:8px 14px;
+  color:var(--gold);
+  background:linear-gradient(180deg,#2a2418 0%,#0f0d09 100%);
+  border:1px solid var(--gold);
+  border-radius:14px;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 0 10px rgba(217,182,111,.35);
+
+  text-decoration:none;
+}
+
+.hq-return-btn:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 0 16px rgba(217,182,111,.6);
+}
+
+</style>
+</head>
+
+<body>
+
+<!-- BOUTON RETOUR AU LIVRE DES QUÊTES -->
+<a href="index.html" class="hq-return-btn">Retour aux livres des quêtes</a>
+
+
+<section id="screen-city">
+  <div class="wrap">
+    <div style="display:flex;align-items:center;gap:10px">
+      <button class="btn" id="btn-reset">Réinitialiser</button>
+      <div class="counters">
+        <span>Magasins visités : <strong id="visit-count">0</strong>/3</span>
+        <span>Évènements tirés : <strong id="event-count">0</strong>/2</span>
+      </div>
+    </div>
+
+    <div class="rules">
+      <strong>Visite jusqu’à 3 magasins.</strong>  
+      Entre chaque visite, tire une carte événement.
+    </div>
+
+    <div class="grid" id="city-grid">
+      <div class="card shop" data-name="marchand"><span class="label">Marchand</span><img src="cartes/marchand.jpg"></div>
+      <div class="card shop" data-name="forge armes"><span class="label">Forge armes</span><img src="cartes/forgerunesarme.jpg"></div>
+      <div class="card shop" data-name="forge armures"><span class="label">Forge armures</span><img src="cartes/forgerunesarmure.jpg"></div>
+      <div class="card shop" data-name="potions vie"><span class="label">Potions vie</span><img src="cartes/potionsvieetesprit.jpg"></div>
+      <div class="card shop" data-name="potions force"><span class="label">Potions force</span><img src="cartes/potionsdeforce.jpg"></div>
+      <div class="card shop" data-name="restaurant"><span class="label">Restaurant</span><img src="cartes/restaurant.jpg"></div>
+      <div class="card shop" data-name="jeux"><span class="label">Jeux</span><img src="cartes/jeux.jpg"></div>
+      <div class="card deck" id="deck"><span class="label">Pioche évènement</span><img src="cartes/villeevenement.jpg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- Modale boutique -->
+<div class="modal-overlay" id="shop-modal">
+  <div class="modal">
+    <header>
+      <h3 id="shop-title">Boutique</h3>
+      <button class="btn" id="shop-close">✕</button>
+    </header>
+    <div class="modal-body">
+      <img id="shop-img">
+    </div>
+  </div>
+</div>
+
+<!-- Modale évènement -->
+<div class="modal-overlay" id="evt-modal">
+  <div class="modal">
+    <header>
+      <h3>Évènement</h3>
+      <button class="btn" id="evt-close">✕</button>
+    </header>
+    <div class="modal-body">
+      <img id="evt-img">
+    </div>
+  </div>
+</div>
+
+
+
+
+<!-- HeroQuest Alert -->
+<div class="modal-overlay" id="hq-alert">
+  <div class="modal">
+    <header>
+      <h3></h3>
+      <button class="btn" id="hq-alert-close">✕</button>
+    </header>
+    <div class="modal-body">
+      <p id="hq-alert-text" style="font-family: 'Cinzel', serif; font-size:20px; text-align:center;"></p>
+    </div>
+  </div>
+</div>
+
+
+
+<script>
+/**
+ * Page 3 – Ville (autonome)
+ * Conventions images :
+ *  - recto : cartes/<base>.jpg (déjà dans le HTML)
+ *  - verso : cartes/<base>dos.jpg  (ex: forgerunesarme.jpg -> forgerunesarmedos.jpg)
+ *  - évènements : cartes/eventville_1.jpg ... cartes/eventville_29.jpg
+ */
+let visitCount = 0;
+let eventCount = 0;
+let mustDrawEvent = false;
+
+const visitEl = document.getElementById('visit-count');
+const eventEl = document.getElementById('event-count');
+const deckEl  = document.getElementById('deck');
+
+function updateCounters(){
+  visitEl.textContent = visitCount;
+  eventEl.textContent = `${eventCount}/2`;
+}
+
+function setDeckHighlight(on){
+  deckEl.classList.toggle('deck-highlight', !!on);
+}
+
+function rectoToVerso(rectoSrc){
+  return rectoSrc.replace(/\.jpg$/i, 'dos.jpg');
+}
+
+function versoToRecto(versoSrc){
+  return versoSrc.replace(/dos\.jpg$/i, '.jpg');
+}
+
+function openShopZoom(card){
+  const img = card.querySelector('img');
+  document.getElementById('shop-title').textContent = card.dataset.name || 'Boutique';
+  document.getElementById('shop-img').src = img.src;
+  document.getElementById('shop-modal').classList.add('show');
+}
+
+
+function showHQAlert(msg){
+  document.getElementById('hq-alert-text').textContent = msg;
+  document.getElementById('hq-alert').classList.add('show');
+}
+
+document.getElementById('hq-alert-close').onclick = ()=>{
+  document.getElementById('hq-alert').classList.remove('show');
+};
+
+function openEventZoom(src){
+
+  document.getElementById('evt-img').src = src;
+  document.getElementById('evt-modal').classList.add('show');
+}
+
+// Magasins : 1er clic = consommation + flip ; clic suivant = zoom
+document.querySelectorAll('.shop').forEach(card=>{
+  card.addEventListener('click', ()=>{
+    const img = card.querySelector('img');
+
+    // déjà consommé -> zoom seulement
+    if (card.dataset.used === '1'){
+      openShopZoom(card);
+      return;
+    }
+
+    // première utilisation
+    if (visitCount >= 3) return showHQAlert("Limite de visite de magasin atteinte vous pouvez retourner à la selection de quête.");
+    if (mustDrawEvent)  return showHQAlert("Vous devez tirer une carte évènement avant de visiter un nouveau magasin.");
+
+    visitCount++;
+    mustDrawEvent = true;
+    updateCounters();
+    setDeckHighlight(true);
+
+    card.classList.add('selected');
+    img.src = rectoToVerso(img.src);
+    card.dataset.used = '1';
+  });
+});
+
+// Pioche évènement : obligatoire entre 2 visites (max 2 événements)
+deckEl.addEventListener('click', ()=>{
+  if (!mustDrawEvent) return showHQAlert("Aucune carte évènement à tirer");
+  if (eventCount >= 2) return showHQAlert("La pioche est vide");
+
+  const n = Math.floor(Math.random()*29) + 1;
+  const src = `cartes/eventville_${n}.jpg`;
+
+  mustDrawEvent = false;
+  eventCount++;
+  updateCounters();
+  setDeckHighlight(false);
+
+  openEventZoom(src);
+});
+
+// Fermeture modales
+document.getElementById('shop-close').onclick = ()=> {
+  document.getElementById('shop-modal').classList.remove('show');
+};
+document.getElementById('evt-close').onclick = ()=> {
+  document.getElementById('evt-modal').classList.remove('show');
+};
+
+// Reset complet
+document.getElementById('btn-reset').onclick = ()=>{
+  visitCount = 0;
+  eventCount = 0;
+  mustDrawEvent = false;
+  updateCounters();
+  setDeckHighlight(false);
+
+  document.querySelectorAll('.shop').forEach(card=>{
+    card.classList.remove('selected');
+    card.dataset.used = '0';
+    const img = card.querySelector('img');
+    img.src = versoToRecto(img.src);
+  });
+
+  document.getElementById('shop-modal').classList.remove('show');
+  document.getElementById('evt-modal').classList.remove('show');
+};
+
+// init
+updateCounters();
+setDeckHighlight(false);
+</script>
+</body>
+</html>

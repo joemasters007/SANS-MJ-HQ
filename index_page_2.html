@@ -1,0 +1,1145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>HeroQuest — Page 2</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Uncial+Antiqua&display=swap" rel="stylesheet"/>
+
+<style>
+:root{
+  --bg:#0c0c0f;
+  --fg:#f2e9de;
+  --edge:#5f4a35;
+  --gold:#d9b66f;
+  --card:#141418;
+  --ink:#1a1a20;
+  --gap:6px;
+}
+*{ box-sizing:border-box }
+html,body{
+  margin:0;
+  height:100%;
+  background:var(--bg);
+  color:var(--fg);
+  font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;
+}
+.hq{ font-family:'Cinzel Decorative','Uncial Antiqua',serif; }
+.btn{
+  background:var(--ink);
+  border:1px solid var(--edge);
+  color:var(--fg);
+  padding:6px 10px;
+  border-radius:10px;
+}
+#page2{
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+  padding:8px;
+}
+.topbar{ display:flex; align-items:center; gap:8px; }
+.topbar .spacer{ flex:1 }
+.content{
+  flex:1;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:10px;
+}
+.panel{
+  background:var(--card);
+  border:1px solid var(--edge);
+  border-radius:12px;
+  padding:8px;
+}
+.subgrid{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-bottom:8px;
+}
+.tile{
+  position:relative;
+  border:1px solid var(--edge);
+  border-radius:12px;
+  background:#0f0f13;
+  height:364px;
+}
+.tile .title{
+  position:absolute;
+  top:10px;
+  left:10px;
+  background:rgba(0,0,0,.6);
+  border:1px solid var(--edge);
+  border-radius:8px;
+  padding:4px 8px;
+}
+.separator{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:6px 0;
+}
+.separator::before,
+.separator::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:linear-gradient(to right, transparent, var(--gold), transparent);
+}
+.separator span{
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  color:var(--gold);
+  font-size:13px;
+  letter-spacing:2px;
+}
+.unit{
+  aspect-ratio:5/4;
+  border:1px solid var(--edge);
+  border-radius:6px;
+  background:#111;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.unit img{
+  max-width:100%;
+  max-height:100%;
+}
+.enemy-grid,
+.hero-grid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:var(--gap);
+}
+.right-panel{
+  height:100%;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.right-plan{
+  flex:1;
+  border:1px solid var(--edge);
+  border-radius:12px;
+  background:#0f0f13;
+}
+.right-small{
+  height:121px;
+  border:1px solid var(--edge);
+  border-radius:12px;
+  background:#0f0f13;
+  display:flex;
+  flex-direction:column;
+  padding:4px;
+}
+.rs-top{ flex:2 }
+.rs-bottom{ flex:1 }
+#hero-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.85);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:999;
+}
+.hero-box{
+  width:520px;
+  background:#141418;
+  border:1px solid var(--edge);
+  border-radius:12px;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.hero-grid-select{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.hero-choice{
+  border:1px solid var(--edge);
+  border-radius:8px;
+  padding:8px 4px;
+  text-align:center;
+  cursor:pointer;
+}
+.hero-choice.selected{
+  color:var(--gold);
+  border-color:var(--gold);
+  background:rgba(217,182,111,.15);
+}
+
+/* ===== CADRE DORÉ (tour actif) ===== */
+.gold{
+  outline:3px solid var(--gold);
+  outline-offset:-3px;
+}
+
+
+/* ===== NOUVEAU TOUR (AU-DESSUS DU 5e CADRE) ===== */
+.enemy-grid-wrapper{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:var(--gap);
+}
+.enemy-grid-wrapper .new-turn-spacer{
+  grid-column:1 / span 4;
+}
+.enemy-grid-wrapper .new-turn-label{
+  grid-column:5;
+  text-align:center;
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:1px;
+}
+.enemy-grid{
+  grid-column:1 / span 5;
+}
+
+
+/* ===== DÉ DE SAUVEGARDE ===== */
+.save-box{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-end;
+  gap:4px;
+  font-size:12px;
+}
+.save-title{
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:1px;
+}
+.save-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.save-controls button{
+  width:33px;
+  height:33px;
+  padding:0;
+  border-radius:6px;
+  background:var(--ink);
+  border:1px solid var(--edge);
+  color:var(--fg);
+  cursor:pointer;
+  font-size:18px;
+}
+.save-count{
+  font-size:33px;
+  font-weight:700;
+  min-width:42px;
+  text-align:center;
+}
+
+
+
+
+
+
+
+/* ===== FIX IMAGE PIÈGE DANS SON CADRE ===== */
+.save-box{
+  position:relative;
+  overflow:hidden;          /* interdit tout débordement */
+}
+
+.save-box .save-controls{
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+
+.save-box .save-title{
+  z-index:2;
+}
+
+.save-box img.save-piege{
+  position:absolute;
+  bottom:4px;
+  left:50%;
+  transform:translateX(-50%);
+  max-width:90%;
+  max-height:45%;
+  object-fit:contain;
+  z-index:1;                /* derrière le texte/compteur */
+  pointer-events:none;
+}
+
+
+.save-box img.save-piege{
+  position:absolute;
+  bottom:4px;
+  left:50%;
+  transform:translateX(-50%);
+  max-width:90%;
+  max-height:45%;
+  object-fit:contain;
+  pointer-events:none;
+}
+
+.save-title,
+.save-controls{
+  position:relative;
+  z-index:2;                    /* toujours au-dessus de l’image */
+}
+
+
+/* ===== IMAGE PIÈGE DANS LE CADRE (comme le dé, mais en fond) ===== */
+.save-box{
+  position:relative;
+  overflow:hidden;
+  background-image:url("images/piege.jpg");
+  background-repeat:no-repeat;
+  background-position:center 75%;
+  background-size:contain;
+}
+.save-title,
+.save-controls{
+  position:relative;
+  z-index:2;
+}
+
+
+/* ===== RECHERCHE TRÉSOR (AU-DESSUS DU 5e CADRE HÉROS) ===== */
+.hero-grid-wrapper{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:var(--gap);
+}
+.hero-grid-wrapper .treasure-spacer{
+  grid-column:1 / span 4;
+}
+.hero-grid-wrapper .treasure-label{
+  grid-column:5;
+  text-align:center;
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  color:var(--gold);
+  font-size:11px;
+  letter-spacing:1px;
+}
+.hero-grid{
+  grid-column:1 / span 5;
+}
+
+
+/* ===== FIX IMAGES TUILES (MODE SOLO / ÉVÉNEMENT) ===== */
+.tile{
+  position:relative;
+  overflow:hidden;
+}
+.tile img{
+  position:absolute;
+  inset:0;
+  width:100%;
+  height:100%;
+  object-fit:contain; /* image bien cadrée, pas géante */
+  z-index:0;
+}
+.tile .title{
+  z-index:2; /* titre toujours au-dessus de l'image */
+}
+
+
+/* ===== VISIBILITÉ DÉ DE SAUVEGARDE ===== */
+.save-box{
+  justify-content:space-between; /* titre en haut, compteur au milieu, image en bas */
+}
+
+.save-title{
+  color:#000;                 /* noir pour lisibilité */
+  background:rgba(217,182,111,.85);
+  padding:2px 6px;
+  border-radius:6px;
+  margin-top:2px;
+}
+
+
+/* ===== NOTES / OBJECTIFS (séparation simple, sans cadre interne) ===== */
+.notes-objectifs{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  align-items:center;
+  height:100%;
+}
+.no-head{
+  text-align:center;
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  color:var(--gold);
+  font-size:12px;
+  letter-spacing:2px;
+}
+.no-left{
+  border-right:1px solid var(--edge);
+}
+
+
+/* ===== RESTAURATION STYLE HEROQUEST BOUTONS TOPBAR ===== */
+.topbar .hq-btn{
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  
+  letter-spacing:2px;
+  font-size:13px;
+  padding:8px 18px;
+  color:var(--gold);
+  background:linear-gradient(180deg,#3a2f1f 0%,#1a140d 100%);
+  border:1px solid var(--gold);
+  border-radius:14px;
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.18),
+    0 0 10px rgba(217,182,111,.35);
+  cursor:pointer;
+}
+.topbar .hq-btn:hover{
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.25),
+    0 0 16px rgba(217,182,111,.6);
+}
+
+
+/* ===== MONSTRE ERRANT (CSV) ===== */
+.monster-text{
+  margin-top:8px;
+  color:var(--gold);
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  font-size:13px;
+  line-height:1.5;
+}
+
+
+/* ===== MONSTRE ERRANT (CSV) ===== */
+.monster-text{
+  margin-top:6px;
+  text-align:center;
+  color:var(--gold);
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  font-size:13px;
+  line-height:1.5;
+  white-space:pre-line;
+}
+
+
+/* ===== PREPARATION NOTES / OBJECTIFS ===== */
+.notes-objectifs{
+  align-items:flex-start;
+}
+
+.no-col{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+}
+
+.no-title{
+  align-self:flex-start;
+  margin:0;
+  padding:2px 4px;
+}
+
+.slots{
+  margin-top:6px;
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  min-height:32px;
+}
+
+
+/* ===== NOTES : LETTRES (CSV) ===== */
+.note-square{
+  width:24px;
+  height:24px;
+  border:1px solid var(--gold);
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  font-size:13px;
+  color:var(--gold);
+  background:rgba(0,0,0,.3);
+}
+
+
+/* ===== NOTE LUE (VERT TRANSPARENT HQ) ===== */
+.note-square.read{
+  background: rgba(46,167,84,.35);
+  border-color: rgba(46,167,84,.9);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(46,167,84,.35);
+}
+
+
+/* ===== OBJECTIFS : DÉCALAGE À DROITE ===== */
+#objectifs-title,
+#objectifs-slots{
+  margin-left: 20px;
+}
+
+
+/* ===== TEXTE NOTES STYLE HEROQUEST ===== */
+.note-text{
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif !important;
+  font-size:1.15em;
+  letter-spacing:1px;
+  line-height:1.6;
+  text-align:justify;
+  text-align-last:left;
+  text-justify:inter-word;
+  color:var(--gold);
+}
+
+
+/* ===== HEROQUEST CUSTOM FONT ===== */
+@font-face {
+  font-family: 'HeroQuestCustom';
+  src: url('heroquestcyrunicorn.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+/* Apply everywhere */
+body,
+button,
+.note-text,
+.no-head,
+.separator span,
+.save-title,
+.topbar,
+.hero-choice {
+  font-family: 'HeroQuestCustom', serif !important;
+  text-transform: none !important;
+  letter-spacing: normal !important;
+}
+
+
+/* ===== OBJECTIF LU (BLEU HEROQUEST) ===== */
+.note-square.read-objective{
+  background: rgba(70,130,255,.35);
+  border-color: rgba(70,130,255,.9);
+  color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(70,130,255,.35);
+}
+
+</style>
+</head>
+
+<body>
+<section id="page2">
+  <div class="topbar">
+    <div class="hq">📜 Histoire de la quête</div>
+    <div class="spacer"></div>
+    <button class="btn">Règles</button>
+    <button class="btn">Équipements</button>
+    <button class="btn hq-btn" onclick="document.getElementById('fin-quete-modal').style.display='flex'">Fin de quête</button>
+  </div>
+
+  <div class="content">
+    <div>
+      <div class="subgrid">
+        <div class="tile"><div class="title hq">Mode Solo</div><img src="images/modesol.jpg" alt="Mode Solo"></div>
+        <div class="tile"><div class="title hq">Événement & piège</div><img src="images/event.jpg" alt="Événement & piège"></div>
+      </div>
+
+      <div class="panel">
+        <div class="separator"><span>ENNEMIS</span></div>
+        <div class="enemy-grid-wrapper">
+  <div class="new-turn-spacer"></div>
+  <div class="new-turn-label">NOUVEAU TOUR</div>
+  <div class="enemy-grid">
+          <div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div>
+          <div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div>
+          </div>
+  </div>
+
+        <div class="separator"><span>HÉROS</span></div>
+        <div class="hero-grid-wrapper">
+          <div class="treasure-spacer"></div>
+          <div class="treasure-label">RECHERCHE TRÉSOR</div>
+          <div class="hero-grid">
+            <div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div><div class="unit"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel right-panel">
+      <div class="right-plan"></div>
+      <div class="right-small">
+        <div class="rs-top notes-objectifs">
+        <div class="no-col no-left">
+          <div class="no-head no-title">NOTES</div>
+          <div id="notes-slots" class="slots"></div>
+        </div>
+        <div class="no-col">
+          <div class="no-head no-title">OBJECTIFS</div>
+          <div id="objectifs-slots" class="slots"></div>
+        </div>
+      </div>
+        <div class="separator"><span>MONSTRE ERRANT</span></div>
+        <div class="rs-bottom">
+  <div id="monster-text" class="monster-text"></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="hero-overlay">
+  <div class="hero-box">
+    <div class="hq">Choisissez 4 héros</div>
+    <div id="hero-select" class="hero-grid-select"></div>
+  </div>
+</div>
+
+<script>
+/* ===== ENNEMIS ===== */
+const ENEMIES = ["ab","gc","gargouille","gobelin","orc","zombi","squelette","momie"];
+
+/* cadres ennemis actifs : on ignore chaque 5e */
+const enemySlots = [...document.querySelectorAll(".enemy-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+/* mélange */
+ENEMIES.sort(()=>Math.random()-0.5);
+
+/* placement */
+enemySlots.forEach((slot,i)=>{
+  slot.innerHTML = `<img src="images/${ENEMIES[i]}.jpg" alt="${ENEMIES[i]}">`;
+});
+
+/* ===== HEROES ===== */
+fetch("heros.csv")
+  .then(r=>r.text())
+  .then(txt=>{
+    const heroes = txt.trim().split("\n").slice(1)
+      .map(l=>l.split(";")[0].trim());
+    initHeroSelection(heroes);
+  });
+
+const heroSelect = document.getElementById("hero-select");
+const overlay = document.getElementById("hero-overlay");
+const heroGrid = [...document.querySelectorAll(".hero-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+function initHeroSelection(HEROES){
+  let selected = [];
+  HEROES.forEach(h=>{
+    const d=document.createElement("div");
+    d.className="hero-choice";
+    d.textContent=h;
+    d.onclick=()=>{
+      if(selected.includes(h) || selected.length>=4) return;
+      selected.push(h);
+      d.classList.add("selected");
+      if(selected.length===4) placeHeroes(selected);
+    };
+    heroSelect.appendChild(d);
+  });
+}
+
+function placeHeroes(list){
+  overlay.style.display="none";
+  const slots=[0,1,2,3].sort(()=>Math.random()-0.5);
+  list.forEach((h,i)=>{
+    heroGrid[slots[i]].innerHTML =
+      `<img src="images/${h.toLowerCase()}.jpg">`;
+  });
+}
+
+/* ===== CADRE DORÉ ALÉATOIRE (ENNEMIS + HÉROS) ===== */
+
+/* cadres actifs ennemis (hors 5e de chaque ligne) */
+const enemyActive = [...document.querySelectorAll(".enemy-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+/* cadres actifs héros (hors 5e) */
+const heroActive = [...document.querySelectorAll(".hero-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+/* tirage aléatoire */
+const enemyGoldIndex = Math.floor(Math.random()*enemyActive.length);
+const heroGoldIndex  = Math.floor(Math.random()*heroActive.length);
+
+/* application */
+enemyActive[enemyGoldIndex].classList.add("gold");
+heroActive[heroGoldIndex].classList.add("gold");
+
+
+/* ===== IMAGE DÉS (5e cadre ligne 1 ennemis) ===== */
+const enemyUnitsAll = document.querySelectorAll(".enemy-grid .unit");
+const diceFrame = enemyUnitsAll[4]; // 5e cadre, ligne 1
+diceFrame.innerHTML = '<img src="images/des.jpg" alt="dés">';
+
+
+/* ===== DÉPLACEMENT CADRE DORÉ AU CLIC SUR LE DÉ ===== */
+const diceFrameStep3 = document.querySelectorAll(".enemy-grid .unit")[4];
+
+/* cadres actifs ennemis : 8 positions (hors 5e cadres) */
+const enemyActiveStep3 = [...document.querySelectorAll(".enemy-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+/* cadres actifs héros : 4 positions */
+const heroActiveStep3 = [...document.querySelectorAll(".hero-grid .unit")]
+  .filter((_,i)=>(i+1)%5!==0);
+
+/* indices courants (détectés depuis l'étape 1) */
+let enemyIndexStep3 = enemyActiveStep3.findIndex(u=>u.classList.contains("gold"));
+let heroIndexStep3  = heroActiveStep3.findIndex(u=>u.classList.contains("gold"));
+
+function paintGoldStep3(){
+  enemyActiveStep3.forEach(u=>u.classList.remove("gold"));
+  heroActiveStep3.forEach(u=>u.classList.remove("gold"));
+  enemyActiveStep3[enemyIndexStep3].classList.add("gold");
+  heroActiveStep3[heroIndexStep3].classList.add("gold");
+}
+
+function nextHeroStep3(){
+  heroIndexStep3 = (heroIndexStep3 + 1) % heroActiveStep3.length;
+}
+
+function nextEnemyStep3(){
+  // indices 0-3 = ligne 1, 4-7 = ligne 2
+  if (enemyIndexStep3 === 3) {
+    enemyIndexStep3 = 4; // fin ligne 1 -> début ligne 2
+  } else if (enemyIndexStep3 === 7) {
+    enemyIndexStep3 = 0; // fin ligne 2 -> début ligne 1
+  } else {
+    enemyIndexStep3 += 1;
+  }
+}
+
+diceFrameStep3.onclick = ()=>{
+  nextHeroStep3();
+  nextEnemyStep3();
+  paintGoldStep3();
+};
+
+
+/* ===== DÉ DE SAUVEGARDE (5e cadre ligne 2 ennemis) ===== */
+const enemyUnitsAllSave = document.querySelectorAll(".enemy-grid .unit");
+const saveFrame = enemyUnitsAllSave[9]; // 5e cadre ligne 2
+
+let saveValue = 0;
+
+saveFrame.classList.add("save-box");
+saveFrame.innerHTML = `
+  <div class="save-title">DÉ DE SAUVEGARDE</div>
+  <div class="save-controls">
+    <button type="button" id="save-minus">−</button>
+    <div class="save-count" id="save-count">0</div>
+    <button type="button" id="save-plus">+</button>
+  </div>
+`;
+
+const saveCountEl = document.getElementById("save-count");
+function updateSave(val){
+  saveValue = Math.max(0, Math.min(6, val));
+  saveCountEl.textContent = saveValue;
+}
+document.getElementById("save-plus").onclick = ()=>updateSave(saveValue+1);
+document.getElementById("save-minus").onclick = ()=>updateSave(saveValue-1);
+
+
+/* ===== LIEN NOUVEAU TOUR -> -1 DÉ DE SAUVEGARDE ===== */
+const originalDiceHandler = diceFrameStep3.onclick;
+
+diceFrameStep3.onclick = ()=>{
+  // réduire le dé de sauvegarde
+  if (saveValue > 0) {
+    saveValue -= 1;
+    saveCountEl.textContent = saveValue;
+  }
+
+  // conserver le comportement existant (déplacement cadres dorés)
+  if (typeof originalDiceHandler === "function") {
+    originalDiceHandler();
+  }
+};
+
+
+/* ===== TRÉSOR (5e cadre ligne 3 - HÉROS) ===== */
+const heroUnitsAll = document.querySelectorAll(".hero-grid .unit");
+const treasureFrame = heroUnitsAll[4]; // 5e cadre de la ligne héros
+treasureFrame.innerHTML = '<img src="images/tresor.jpg" alt="trésor">';
+
+
+// ===== CONTEXTE QUÊTE (reçu depuis page 1) =====
+const HQ_BOOK  = localStorage.getItem("hq_book");
+const HQ_NUM   = localStorage.getItem("hq_quest_num");
+const HQ_TITLE = localStorage.getItem("hq_quest_title");
+
+
+// ===== LECTURE CSV MONSTRE ERRANT =====
+(async function(){
+  const book  = localStorage.getItem("hq_book");
+  const num   = localStorage.getItem("hq_quest_num");
+
+  if(!book || !num) return;
+
+  try{
+    const res = await fetch("monstre.csv");
+    if(!res.ok) return;
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+
+    // ignore header
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
+
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const csvText = cols[3].trim();
+
+      if(csvBook === book && csvNum === num){
+        const target = document.getElementById("monster-text");
+        if(target){
+          target.textContent = csvText;
+        }
+        break;
+      }
+    }
+  }catch(e){
+    // silence volontaire
+  }
+})();
+
+
+// ===== MONSTRE ERRANT : LECTURE CSV =====
+(async function(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  try{
+    const res = await fetch("monstre.csv");
+    if(!res.ok) return;
+    const txt = await res.text();
+    const lines = txt.split(/\r?\n/).filter(l=>l.trim()!=="");
+
+    for(let i=1;i<lines.length;i++){ // ignore header
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
+      if(cols[0].trim() === book && cols[1].trim() === num){
+        const target = document.getElementById("monster-text");
+        if(target) target.textContent = cols[3].trim();
+        break;
+      }
+    }
+  }catch(e){}
+})();
+
+
+// ===== NOTES : LECTURE CSV (LETTRES UNIQUEMENT) =====
+(async function(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  const container = document.getElementById("notes-slots");
+  if(!container) return;
+
+  try{
+    const res = await fetch("quetenote.csv");
+    if(!res.ok) return;
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
+
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const letter  = cols[3].trim();
+      const noteTxt = (cols.length >= 6 ? cols[5].trim() : ""); // colonne 6
+
+      if(csvBook === book && csvNum === num && letter){
+        const d = document.createElement("div");
+        d.className = "note-square";
+        d.textContent = letter;
+        if(noteTxt) d.dataset.text = noteTxt;
+        container.appendChild(d);
+      }
+    }
+  }catch(e){}
+})();
+
+
+// ===== NOTES : OUVERTURE MODALE AU CLIC (TEXTE COL 6) =====
+document.addEventListener("click", function(e){
+  const modal = document.getElementById("noteModal");
+  const title = document.getElementById("noteModalTitle");
+  if(!modal || !title) return;
+
+  // clic sur une note
+  if(e.target.classList && e.target.classList.contains("note-square")){
+    title.textContent = "NOTE " + e.target.textContent;
+
+    // supprimer l'ancien texte si présent
+    const old = title.nextElementSibling;
+    if(old && old.classList && old.classList.contains("note-text")) old.remove();
+
+    const txt = (e.target.dataset && e.target.dataset.text) ? e.target.dataset.text : "";
+    if(txt){
+      const div = document.createElement("div");
+      div.className = "note-text";
+      div.style.marginTop = "12px";
+      div.style.whiteSpace = "pre-line";
+      div.style.letterSpacing = "0px";
+      div.style.color = "var(--gold)";
+      div.style.fontFamily = "'Cinzel Decorative','Uncial Antiqua',serif";
+      div.style.textAlign = "justify";
+      div.style.textAlignLast = "left";
+      div.style.textJustify = "inter-word";
+      div.textContent = txt;
+      title.after(div);
+    }
+
+    modal.style.display = "flex";
+  }
+
+  // clic hors de la fenêtre
+  if(e.target === modal){
+    modal.style.display = "none";
+  }
+});
+
+
+// ===== NOTES : PASSAGE EN VERT AU CLIC (SAFE) =====
+(function(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  const key = `hq_notes_read__${book}__${num}`;
+
+  // restaurer l'état vert après rechargement
+  try{
+    const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    document.querySelectorAll(".note-square").forEach(el=>{
+      if(saved.includes(el.textContent.trim())){
+        el.classList.add("read");
+      }
+    });
+  }catch(e){}
+
+  // délégation clic : marquer vert
+  document.addEventListener("click", function(e){
+    const t = e.target;
+    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+
+    const letter = t.textContent.trim();
+    let saved = [];
+    try{
+      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    }catch(e){}
+
+    if(!saved.includes(letter)){
+      saved.push(letter);
+      sessionStorage.setItem(key, JSON.stringify(saved));
+    }
+    t.classList.add("read");
+  });
+})();
+
+
+
+// ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
+(async function(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  const container = document.getElementById("objectifs-slots");
+  if(!container) return;
+
+  try{
+    const res = await fetch("queteobjectif.csv");
+    if(!res.ok) return;
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
+
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const objNum  = cols[3].trim();
+      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
+
+      if(csvBook === book && csvNum === num && objNum){
+        const d = document.createElement("div");
+        d.className = "note-square";
+        d.textContent = objNum;
+        if(objTxt) d.dataset.text = objTxt;
+        container.appendChild(d);
+      }
+    }
+  }catch(e){}
+})();
+
+
+
+
+// ===== OBJECTIFS : OUVERTURE MODALE AVEC TEXTE =====
+(function(){
+  const container = document.getElementById("objectifs-slots");
+  const modal = document.getElementById("objectifModal");
+  const title = document.getElementById("objectifModalTitle");
+  if(!container || !modal || !title) return;
+
+  container.addEventListener("click", function(e){
+    const t = e.target;
+    if(!t.classList.contains("note-square")) return;
+
+    title.textContent = "OBJECTIF " + t.textContent;
+
+    const old = title.nextElementSibling;
+    if(old && old.classList && old.classList.contains("note-text")) old.remove();
+
+    const txt = (t.dataset && t.dataset.text) ? t.dataset.text : "";
+
+    if(txt){
+      const div = document.createElement("div");
+      div.className = "note-text";
+      div.style.marginTop = "12px";
+      div.style.whiteSpace = "pre-line";
+      div.style.color = "var(--gold)";
+      div.style.textAlign = "justify";
+      div.style.textAlignLast = "left";
+      div.style.textJustify = "inter-word";
+      div.textContent = txt;
+      title.after(div);
+    }
+
+    modal.style.display = "block";
+    e.stopPropagation();
+  });
+
+  document.addEventListener("click", function(e){
+    if(e.target === modal){
+      modal.style.display = "none";
+    }
+  });
+})();
+
+
+
+// ===== OBJECTIFS : PASSAGE EN VERT AU CLIC =====
+(function(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  const key = `hq_objectifs_read__${book}__${num}`;
+
+  try{
+    const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    document.querySelectorAll("#objectifs-slots .note-square").forEach(el=>{
+      if(saved.includes(el.textContent.trim())){
+        el.classList.add("read-objective");
+      }
+    });
+  }catch(e){}
+
+  document.addEventListener("click", function(e){
+    const t = e.target;
+    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+    if(!t.closest("#objectifs-slots")) return;
+
+    t.classList.remove("read");
+    t.classList.add("read-objective");
+
+    const val = t.textContent.trim();
+    let saved = [];
+    try{
+      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    }catch(e){}
+
+    if(!saved.includes(val)){
+      saved.push(val);
+      sessionStorage.setItem(key, JSON.stringify(saved));
+    }
+    t.classList.add("read");
+  });
+})();
+</script>
+
+<!-- FIN DE QUÊTE : MODALE MINIMALE -->
+<div id="fin-quete-modal" style="
+  position:fixed; inset:0;
+  background:rgba(0,0,0,.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:9999;
+">
+  <div style="
+    background:#141418;
+    border:1px solid var(--gold);
+    border-radius:14px;
+    padding:16px;
+    width:min(900px,90vw);
+  ">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
+      <a href="index.html"><img src="images/livre.jpg" style="width:100%;border-radius:10px;cursor:pointer"></a>
+      <a href="index_page_3.html"><img src="images/ville.jpg" style="width:100%;border-radius:10px;cursor:pointer"></a>
+    </div>
+    <div style="text-align:center">
+      <button class="btn hq-btn"
+        onclick="document.getElementById('fin-quete-modal').style.display='none'">
+        Continuer la quête
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<!-- NOTE MODALE SIMPLE -->
+<div id="noteModal" style="
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.7);
+  z-index:10050;
+">
+  <div style="
+    background:#141418;
+    border:1px solid var(--gold);
+    border-radius:12px;
+    padding:18px 22px;
+    font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+    color:var(--gold);
+    letter-spacing:2px;
+  ">
+    <div id="noteModalTitle">NOTE</div>
+  </div>
+</div>
+
+
+<!-- OBJECTIF MODALE (MOITIÉ DROITE) -->
+<div id="objectifModal" style="position:fixed;top:0;left:0;width:50vw;height:100vh;display:none;background:rgba(0,0,0,0.85);z-index:10060;">
+  <div style="padding:24px;border-left:2px solid var(--gold);height:100%;font-family:'Cinzel Decorative','Uncial Antiqua',serif;color:var(--gold);">
+    <h2 id="objectifModalTitle" style="margin-top:0;letter-spacing:2px;">OBJECTIF</h2>
+  </div>
+</div>
+
+</body>
+</html>
