@@ -541,7 +541,7 @@ button,
 
 
 /* ===== OBJECTIF LU (BLEU HEROQUEST) ===== */
-.note-square.read-objective{
+.objective-square.read-objective{
   background: rgba(70,130,255,.35);
   border-color: rgba(70,130,255,.9);
   color: var(--gold);
@@ -885,7 +885,7 @@ const HQ_TITLE = localStorage.getItem("hq_quest_title");
 
       if(csvBook === book && csvNum === num && letter){
         const d = document.createElement("div");
-        d.className = "objective-square";
+        d.className = "note-square";
         d.textContent = letter;
         if(noteTxt) d.dataset.text = noteTxt;
         container.appendChild(d);
@@ -960,7 +960,7 @@ document.addEventListener("click", function(e){
   // délégation clic : marquer vert
   document.addEventListener("click", function(e){
     const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("objective-square")) return;
+    if(!t || !t.classList || !t.classList.contains("note-square")) return;
 
     const letter = t.textContent.trim();
     let saved = [];
@@ -1080,7 +1080,7 @@ document.addEventListener("click", function(e){
 
   document.addEventListener("click", function(e){
     const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("objective-square")) return;
+    if(!t || !t.classList || !t.classList.contains("note-square")) return;
     if(!t.closest("#objectifs-slots")) return;
 
     t.classList.remove("read");
