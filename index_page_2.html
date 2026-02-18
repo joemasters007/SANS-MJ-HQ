@@ -959,21 +959,23 @@ document.addEventListener("click", function(e){
 
   // délégation clic : marquer vert
   document.addEventListener("click", function(e){
-    const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+  const t = e.target;
+  if(!t || !t.classList || !t.classList.contains("objective-square")) return;
+  if(!t.closest("#objectifs-slots")) return;
 
-    const letter = t.textContent.trim();
-    let saved = [];
-    try{
-      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    }catch(e){}
+  t.classList.add("read-objective");
 
-    if(!saved.includes(letter)){
-      saved.push(letter);
-      sessionStorage.setItem(key, JSON.stringify(saved));
-    }
-    t.classList.add("read");
-  });
+  const val = t.textContent.trim();
+  let saved = [];
+  try{
+    saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+  }catch(e){}
+
+  if(!saved.includes(val)){
+    saved.push(val);
+    sessionStorage.setItem(key, JSON.stringify(saved));
+  }
+});
 })();
 
 
@@ -1079,25 +1081,23 @@ document.addEventListener("click", function(e){
   }catch(e){}
 
   document.addEventListener("click", function(e){
-    const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("note-square")) return;
-    if(!t.closest("#objectifs-slots")) return;
+  const t = e.target;
+  if(!t || !t.classList || !t.classList.contains("objective-square")) return;
+  if(!t.closest("#objectifs-slots")) return;
 
-    t.classList.remove("read");
-    t.classList.add("read-objective");
+  t.classList.add("read-objective");
 
-    const val = t.textContent.trim();
-    let saved = [];
-    try{
-      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    }catch(e){}
+  const val = t.textContent.trim();
+  let saved = [];
+  try{
+    saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+  }catch(e){}
 
-    if(!saved.includes(val)){
-      saved.push(val);
-      sessionStorage.setItem(key, JSON.stringify(saved));
-    }
-    t.classList.add("read");
-  });
+  if(!saved.includes(val)){
+    saved.push(val);
+    sessionStorage.setItem(key, JSON.stringify(saved));
+  }
+});
 })();
 </script>
 
