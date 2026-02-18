@@ -939,6 +939,11 @@ document.addEventListener("click", function(e){
 });
 
 
+
+
+
+
+
 // ===== NOTES : PASSAGE EN VERT AU CLIC (SAFE) =====
 (function(){
   const book = localStorage.getItem("hq_book");
@@ -947,7 +952,6 @@ document.addEventListener("click", function(e){
 
   const key = `hq_notes_read__${book}__${num}`;
 
-  // restaurer l'état vert après rechargement
   try{
     const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
     document.querySelectorAll(".note-square").forEach(el=>{
@@ -957,28 +961,25 @@ document.addEventListener("click", function(e){
     });
   }catch(e){}
 
-  // délégation clic : marquer vert
   document.addEventListener("click", function(e){
-  const t = e.target;
-  if(!t || !t.classList || !t.classList.contains("objective-square")) return;
-  if(!t.closest("#objectifs-slots")) return;
+    const t = e.target;
+    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+    if(!t.closest("#notes-slots")) return;
 
-  t.classList.add("read-objective");
+    t.classList.add("read");
 
-  const val = t.textContent.trim();
-  let saved = [];
-  try{
-    saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-  }catch(e){}
+    const val = t.textContent.trim();
+    let saved = [];
+    try{
+      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
+    }catch(e){}
 
-  if(!saved.includes(val)){
-    saved.push(val);
-    sessionStorage.setItem(key, JSON.stringify(saved));
-  }
-});
+    if(!saved.includes(val)){
+      saved.push(val);
+      sessionStorage.setItem(key, JSON.stringify(saved));
+    }
+  });
 })();
-
-
 
 // ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
 (async function(){
