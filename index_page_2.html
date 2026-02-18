@@ -1019,86 +1019,62 @@ document.addEventListener("click", function(e){
 
 
 
-// ===== OBJECTIFS : OUVERTURE MODALE AVEC TEXTE =====
+
+
+
+
+
+
+
+// ===== OBJECTIFS : SYSTÈME INDÉPENDANT COMPLET =====
 (function(){
+
   const container = document.getElementById("objectifs-slots");
   const modal = document.getElementById("objectifModal");
   const title = document.getElementById("objectifModalTitle");
+
   if(!container || !modal || !title) return;
 
+  // ouverture au clic
   container.addEventListener("click", function(e){
-    const t = e.target;
-    if(!t.classList.contains("objective-square")) return;
 
-    title.textContent = "OBJECTIF " + t.textContent;
+    const square = e.target.closest(".objective-square");
+    if(!square) return;
 
-    const old = title.nextElementSibling;
-    if(old && old.classList && old.classList.contains("note-text")) old.remove();
+    // titre
+    title.textContent = "OBJECTIF " + square.textContent;
 
-    const txt = (t.dataset && t.dataset.text) ? t.dataset.text : "";
+    // supprimer ancien texte
+    const old = modal.querySelector(".note-text");
+    if(old) old.remove();
 
+    // texte
+    const txt = square.dataset.text || "";
     if(txt){
       const div = document.createElement("div");
       div.className = "note-text";
-      div.style.marginTop = "12px";
+      div.style.marginTop = "20px";
       div.style.whiteSpace = "pre-line";
-      div.style.color = "var(--gold)";
-      div.style.textAlign = "justify";
-      div.style.textAlignLast = "left";
-      div.style.textJustify = "inter-word";
       div.textContent = txt;
       title.after(div);
     }
 
+    // marquer bleu
+    square.classList.add("read-objective");
+
+    // ouvrir
     modal.style.display = "block";
-    e.stopPropagation();
   });
 
-  document.addEventListener("click", function(e){
+  // fermeture clic fond
+  modal.addEventListener("click", function(e){
     if(e.target === modal){
       modal.style.display = "none";
     }
   });
+
 })();
 
-
-
-// ===== OBJECTIFS : PASSAGE EN VERT AU CLIC =====
-(function(){
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
-
-  const key = `hq_objectifs_read__${book}__${num}`;
-
-  try{
-    const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    document.querySelectorAll("#objectifs-slots .objective-square").forEach(el=>{
-      if(saved.includes(el.textContent.trim())){
-        el.classList.add("read-objective");
-      }
-    });
-  }catch(e){}
-
-  document.addEventListener("click", function(e){
-  const t = e.target;
-  if(!t || !t.classList || !t.classList.contains("objective-square")) return;
-  if(!t.closest("#objectifs-slots")) return;
-
-  t.classList.add("read-objective");
-
-  const val = t.textContent.trim();
-  let saved = [];
-  try{
-    saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-  }catch(e){}
-
-  if(!saved.includes(val)){
-    saved.push(val);
-    sessionStorage.setItem(key, JSON.stringify(saved));
-  }
-});
-})();
 </script>
 
 <!-- FIN DE QUÊTE : MODALE MINIMALE -->
