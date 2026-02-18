@@ -457,6 +457,7 @@ html,body{
 
 /* ===== NOTES : LETTRES (CSV) ===== */
 .note-square{
+
   width:24px;
   height:24px;
   border:1px solid var(--gold);
@@ -470,6 +471,22 @@ html,body{
   background:rgba(0,0,0,.3);
 }
 
+
+
+.objective-square{
+  width:24px;
+  height:24px;
+  border:1px solid var(--gold);
+  border-radius:6px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-family:'Cinzel Decorative','Uncial Antiqua',serif;
+  font-size:13px;
+  color:var(--gold);
+  background:rgba(0,0,0,.3);
+  cursor:pointer;
+}
 
 /* ===== NOTE LUE (VERT TRANSPARENT HQ) ===== */
 .note-square.read{
@@ -868,7 +885,7 @@ const HQ_TITLE = localStorage.getItem("hq_quest_title");
 
       if(csvBook === book && csvNum === num && letter){
         const d = document.createElement("div");
-        d.className = "note-square";
+        d.className = "objective-square";
         d.textContent = letter;
         if(noteTxt) d.dataset.text = noteTxt;
         container.appendChild(d);
@@ -885,7 +902,11 @@ document.addEventListener("click", function(e){
   if(!modal || !title) return;
 
   // clic sur une note
-  if(e.target.classList && e.target.classList.contains("note-square")){
+  if(
+  e.target.classList &&
+  e.target.classList.contains("note-square") &&
+  e.target.closest("#notes-slots")
+){
     title.textContent = "NOTE " + e.target.textContent;
 
     // supprimer l'ancien texte si présent
@@ -939,7 +960,7 @@ document.addEventListener("click", function(e){
   // délégation clic : marquer vert
   document.addEventListener("click", function(e){
     const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+    if(!t || !t.classList || !t.classList.contains("objective-square")) return;
 
     const letter = t.textContent.trim();
     let saved = [];
@@ -984,7 +1005,7 @@ document.addEventListener("click", function(e){
 
       if(csvBook === book && csvNum === num && objNum){
         const d = document.createElement("div");
-        d.className = "note-square";
+        d.className = "objective-square";
         d.textContent = objNum;
         if(objTxt) d.dataset.text = objTxt;
         container.appendChild(d);
@@ -1005,7 +1026,7 @@ document.addEventListener("click", function(e){
 
   container.addEventListener("click", function(e){
     const t = e.target;
-    if(!t.classList.contains("note-square")) return;
+    if(!t.classList.contains("objective-square")) return;
 
     title.textContent = "OBJECTIF " + t.textContent;
 
@@ -1050,7 +1071,7 @@ document.addEventListener("click", function(e){
 
   try{
     const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    document.querySelectorAll("#objectifs-slots .note-square").forEach(el=>{
+    document.querySelectorAll("#objectifs-slots .objective-square").forEach(el=>{
       if(saved.includes(el.textContent.trim())){
         el.classList.add("read-objective");
       }
@@ -1059,7 +1080,7 @@ document.addEventListener("click", function(e){
 
   document.addEventListener("click", function(e){
     const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("note-square")) return;
+    if(!t || !t.classList || !t.classList.contains("objective-square")) return;
     if(!t.closest("#objectifs-slots")) return;
 
     t.classList.remove("read");
