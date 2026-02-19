@@ -1044,14 +1044,14 @@ document.addEventListener("click", function(e){
 
 
 
-// ===== OBJECTIFS : OUVERTURE MODALE SIMPLE ET FIABLE =====
+// ===== OBJECTIFS : OUVERTURE + FERMETURE PROPRE =====
 document.addEventListener("click", function(e){
 
   const modal = document.getElementById("objectifModal");
   const title = document.getElementById("objectifModalTitle");
-
   if(!modal || !title) return;
 
+  // ouverture
   if(
     e.target.classList &&
     e.target.classList.contains("objective-square") &&
@@ -1060,7 +1060,6 @@ document.addEventListener("click", function(e){
 
     title.textContent = "OBJECTIF " + e.target.textContent;
 
-    // supprimer ancien texte
     const old = modal.querySelector(".modal-text");
     if(old) old.remove();
 
@@ -1068,20 +1067,18 @@ document.addEventListener("click", function(e){
     if(txt){
       const div = document.createElement("div");
       div.className = "modal-text";
-      
-      
-      
-      
+      div.style.marginTop = "20px";
+      div.style.whiteSpace = "pre-line";
       div.textContent = txt;
       title.after(div);
     }
 
     e.target.classList.add("read-objective");
-
-    modal.style.display = "block";
+    modal.style.display = "flex";
   }
 
-  if(e.target.id === "noteModal"){
+  // fermeture
+  if(e.target.id === "objectifModal"){
     modal.style.display = "none";
   }
 });
@@ -1169,30 +1166,30 @@ if(objectifModal){
   position:fixed;
   inset:0;
   display:none;
-  background:rgba(0,0,0,0.92);
+  background:rgba(0,0,0,0.9);
   z-index:10060;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
 ">
 
   <div id="objectifBox" style="
-    position:absolute;
-    left:0;
-    top:0;
-    height:100%;
-    width:40vw;
-    max-width:600px;
+    margin-left:4vw;
+    width:38vw;
+    max-width:520px;
+    min-height:20vh;
+    max-height:80vh;
     background:#141418;
-    border-right:2px solid var(--gold);
-    padding:32px 28px;
-    box-shadow:0 0 25px rgba(0,0,0,.8);
-    font-family:'Cinzel Decorative','Uncial Antiqua',serif;
-    color:var(--gold);
+    border:2px solid var(--gold);
+    border-radius:14px;
+    padding:28px;
+    box-shadow:0 0 30px rgba(0,0,0,.9);
     overflow-y:auto;
   ">
 
-    <h2 id="objectifModalTitle" style="
-      margin-top:0;
-      letter-spacing:2px;
-    ">OBJECTIF</h2>
+    <h2 id="objectifModalTitle" style="margin-top:0;">
+      OBJECTIF
+    </h2>
 
   </div>
 </div>
