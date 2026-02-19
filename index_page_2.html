@@ -517,6 +517,17 @@ html,body{
 }
 
 
+
+/* ===== TEXTE MODALES UNIFIÉ ===== */
+.modal-text{
+  font-family:'HeroQuestCustom', serif !important;
+  font-size:1.9em;
+  line-height:1.8;
+  letter-spacing:0px;
+  color:var(--gold);
+  text-align:justify;
+}
+
 /* ===== HEROQUEST CUSTOM FONT ===== */
 @font-face {
   font-family: 'HeroQuestCustom';
@@ -911,20 +922,20 @@ document.addEventListener("click", function(e){
 
     // supprimer l'ancien texte si présent
     const old = title.nextElementSibling;
-    if(old && old.classList && old.classList.contains("note-text")) old.remove();
+    if(old && old.classList && old.classList.contains("modal-text")) old.remove();
 
     const txt = (e.target.dataset && e.target.dataset.text) ? e.target.dataset.text : "";
     if(txt){
       const div = document.createElement("div");
-      div.className = "note-text";
-      div.style.marginTop = "12px";
-      div.style.whiteSpace = "pre-line";
-      div.style.letterSpacing = "0px";
-      div.style.color = "var(--gold)";
-      div.style.fontFamily = "'Cinzel Decorative','Uncial Antiqua',serif";
-      div.style.textAlign = "justify";
-      div.style.textAlignLast = "left";
-      div.style.textJustify = "inter-word";
+      div.className = "modal-text";
+      
+      
+      
+      
+      
+      
+      
+      
       div.textContent = txt;
       title.after(div);
     }
@@ -1050,17 +1061,17 @@ document.addEventListener("click", function(e){
     title.textContent = "OBJECTIF " + e.target.textContent;
 
     // supprimer ancien texte
-    const old = modal.querySelector(".note-text");
+    const old = modal.querySelector(".modal-text");
     if(old) old.remove();
 
     const txt = e.target.dataset.text || "";
     if(txt){
       const div = document.createElement("div");
-      div.className = "note-text";
-      div.style.fontSize = "1.9em";
-      div.style.lineHeight = "1.8";
-      div.style.marginTop = "20px";
-      div.style.whiteSpace = "pre-line";
+      div.className = "modal-text";
+      
+      
+      
+      
       div.textContent = txt;
       title.after(div);
     }
@@ -1074,6 +1085,28 @@ document.addEventListener("click", function(e){
     modal.style.display = "none";
   }
 });
+
+
+
+// ===== NOTE MODALE =====
+const noteModal = document.getElementById("noteModal");
+if(noteModal){
+  noteModal.addEventListener("click", function(e){
+    if(e.target === noteModal){
+      noteModal.style.display = "none";
+    }
+  });
+}
+
+// ===== OBJECTIF MODALE =====
+const objectifModal = document.getElementById("objectifModal");
+if(objectifModal){
+  objectifModal.addEventListener("click", function(e){
+    if(e.target === objectifModal){
+      objectifModal.style.display = "none";
+    }
+  });
+}
 
 </script>
 
