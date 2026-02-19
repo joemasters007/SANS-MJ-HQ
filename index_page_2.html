@@ -930,10 +930,12 @@ document.addEventListener("click", function(e){
     }
 
     modal.style.display = "flex";
+    modal.style.alignItems = "center";
+    modal.style.justifyContent = "center";
   }
 
   // clic hors de la fenêtre
-  if(e.target.id === "objectifModal"){
+  if(e.target.id === "noteModal"){
     modal.style.display = "none";
   }
 });
@@ -1055,6 +1057,8 @@ document.addEventListener("click", function(e){
     if(txt){
       const div = document.createElement("div");
       div.className = "note-text";
+      div.style.fontSize = "1.9em";
+      div.style.lineHeight = "1.8";
       div.style.marginTop = "20px";
       div.style.whiteSpace = "pre-line";
       div.textContent = txt;
@@ -1066,7 +1070,7 @@ document.addEventListener("click", function(e){
     modal.style.display = "block";
   }
 
-  if(e.target.id === "objectifModal"){
+  if(e.target.id === "noteModal"){
     modal.style.display = "none";
   }
 });
