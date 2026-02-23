@@ -986,7 +986,7 @@ document.addEventListener("click", function(e){
 
   function conditionMet(condition){
     if(!condition) return true;
-    const required = condition.split(";").map(c=>c.trim()).filter(Boolean);
+    const required = condition.split(",").map(c=>c.trim()).filter(Boolean);
     return required.every(c => validatedNotes.has(c));
   }
 
