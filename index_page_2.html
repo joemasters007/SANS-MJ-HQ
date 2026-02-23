@@ -933,6 +933,9 @@ document.addEventListener("click", function(e){
 
 
 
+
+window.validatedObjectives = new Set();
+
 // ===== NOTES AVEC CONDITIONS (VERSION CORRIGÉE STABLE) =====
 (async function(){
 
@@ -981,13 +984,28 @@ document.addEventListener("click", function(e){
     }
 
     render();
+    window.forceRenderNotes = render;
 
   }catch(e){}
 
   function conditionMet(condition){
     if(!condition) return true;
-    const required = condition.split(",").map(c=>c.trim()).filter(Boolean);
-    return required.every(c => validatedNotes.has(c));
+
+    const required = condition
+      .split(",")
+      .map(c=>c.trim())
+      .filter(Boolean);
+
+    return required.every(c => {
+
+      if(c.startsWith("OBJ")){
+        const num = c.replace("OBJ","");
+        return window.validatedObjectives.has(num);
+      }
+
+      return validatedNotes.has(c);
+
+    });
   }
 
   function computeVisibleNotes(){
@@ -1053,6 +1071,7 @@ document.addEventListener("click", function(e){
       }
 
       render();
+    window.forceRenderNotes = render;
     }
 
   });
@@ -1138,7 +1157,14 @@ document.addEventListener("click", function(e){
       title.after(div);
     }
 
+    
+    const objNum = e.target.textContent.trim();
+    if(!window.validatedObjectives.has(objNum)){
+      window.validatedObjectives.add(objNum);
+    }
+
     e.target.classList.add("read-objective");
+    if(window.forceRenderNotes) window.forceRenderNotes();
     modal.style.display = "block";
     document.getElementById("objectifBox").classList.add("objectif-open");
   }
