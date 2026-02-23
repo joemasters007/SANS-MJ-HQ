@@ -933,7 +933,7 @@ document.addEventListener("click", function(e){
 
 
 
-// ===== NOTES AVEC CONDITIONS DYNAMIQUES =====
+// ===== NOTES AVEC CONDITIONS (VERSION CORRIGÉE STABLE) =====
 (async function(){
 
   const book = localStorage.getItem("hq_book");
@@ -946,7 +946,6 @@ document.addEventListener("click", function(e){
   const key = `hq_notes_read__${book}__${num}`;
 
   let validatedNotes = new Set();
-  let displayedNotes = new Set();
   let allNotes = [];
 
   try{
@@ -975,42 +974,67 @@ document.addEventListener("click", function(e){
         allNotes.push({
           letter,
           condition,
-          text: noteTxt
+          text: noteTxt,
+          order: i
         });
       }
     }
 
-    refreshNotes();
+    render();
 
   }catch(e){}
 
   function conditionMet(condition){
     if(!condition) return true;
-    const required = condition.split(";").map(c=>c.trim()).filter(c=>c);
+    const required = condition.split(";").map(c=>c.trim()).filter(Boolean);
     return required.every(c => validatedNotes.has(c));
   }
 
-  function refreshNotes(){
+  function computeVisibleNotes(){
 
-    allNotes.forEach(note => {
+    let visible = new Set();
+    let changed = true;
 
-      if(displayedNotes.has(note.letter)) return;
+    while(changed){
+      changed = false;
 
-      if(conditionMet(note.condition)){
+      for(const note of allNotes){
+        if(visible.has(note.letter)) continue;
 
-        const d = document.createElement("div");
-        d.className = "note-square";
-        d.textContent = note.letter;
-        if(note.text) d.dataset.text = note.text;
-
-        if(validatedNotes.has(note.letter)){
-          d.classList.add("read");
+        if(conditionMet(note.condition)){
+          visible.add(note.letter);
+          changed = true;
         }
-
-        container.appendChild(d);
-        displayedNotes.add(note.letter);
       }
-    });
+    }
+
+    return visible;
+  }
+
+  function render(){
+
+    const visible = computeVisibleNotes();
+
+    container.innerHTML = "";
+
+    const ordered = allNotes
+      .filter(n => visible.has(n.letter))
+      .sort((a,b)=>a.order - b.order);
+
+    for(const note of ordered){
+
+      const d = document.createElement("div");
+      d.className = "note-square";
+      d.textContent = note.letter;
+      d.dataset.letter = note.letter;
+      if(note.text) d.dataset.text = note.text;
+
+      if(validatedNotes.has(note.letter)){
+        d.classList.add("read");
+      }
+
+      container.appendChild(d);
+    }
   }
 
   document.addEventListener("click", function(e){
@@ -1021,14 +1045,14 @@ document.addEventListener("click", function(e){
       e.target.closest("#notes-slots")
     ){
 
-      const letter = e.target.textContent.trim();
+      const letter = e.target.dataset.letter;
 
-      validatedNotes.add(letter);
-      e.target.classList.add("read");
+      if(!validatedNotes.has(letter)){
+        validatedNotes.add(letter);
+        sessionStorage.setItem(key, JSON.stringify([...validatedNotes]));
+      }
 
-      sessionStorage.setItem(key, JSON.stringify([...validatedNotes]));
-
-      refreshNotes();
+      render();
     }
 
   });
