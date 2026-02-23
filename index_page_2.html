@@ -940,8 +940,8 @@ document.addEventListener("click", function(e){
       title.after(div);
     }
 
-    modal.style.display = "flex";
-    modal.style.alignItems = "center";
+    modal.style.display = "block";
+    
     modal.style.justifyContent = "center";
   }
 
@@ -1074,7 +1074,7 @@ document.addEventListener("click", function(e){
     }
 
     e.target.classList.add("read-objective");
-    modal.style.display = "flex";
+    modal.style.display = "block";
   }
 
   // fermeture
@@ -1168,23 +1168,17 @@ if(objectifModal){
   display:none;
   background:rgba(0,0,0,0.9);
   z-index:10060;
-  display:flex;
-  align-items:center;
-  justify-content:flex-start;
 ">
 
   <div id="objectifBox" style="
-    margin-left:4vw;
-    width:38vw;
-    max-width:520px;
-    min-height:20vh;
-    max-height:80vh;
+    position:absolute;
+    left:0;
+    top:50%;
+    transform:translateY(-50%);
+    width:50vw;
     background:#141418;
-    border:2px solid var(--gold);
-    border-radius:14px;
-    padding:28px;
-    box-shadow:0 0 30px rgba(0,0,0,.9);
-    overflow-y:auto;
+    border-right:2px solid var(--gold);
+    padding:40px;
   ">
 
     <h2 id="objectifModalTitle" style="margin-top:0;">
