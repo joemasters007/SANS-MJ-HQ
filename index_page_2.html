@@ -875,41 +875,7 @@ const HQ_TITLE = localStorage.getItem("hq_quest_title");
 })();
 
 
-// ===== NOTES : LECTURE CSV (LETTRES UNIQUEMENT) =====
-(async function(){
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
 
-  const container = document.getElementById("notes-slots");
-  if(!container) return;
-
-  try{
-    const res = await fetch("quetenote.csv");
-    if(!res.ok) return;
-
-    const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(";");
-      if(cols.length < 4) continue;
-
-      const csvBook = cols[0].trim();
-      const csvNum  = cols[1].trim();
-      const letter  = cols[3].trim();
-      const noteTxt = (cols.length >= 6 ? cols[5].trim() : ""); // colonne 6
-
-      if(csvBook === book && csvNum === num && letter){
-        const d = document.createElement("div");
-        d.className = "note-square";
-        d.textContent = letter;
-        if(noteTxt) d.dataset.text = noteTxt;
-        container.appendChild(d);
-      }
-    }
-  }catch(e){}
-})();
 
 
 // ===== NOTES : OUVERTURE MODALE AU CLIC (TEXTE COL 6) =====
@@ -963,41 +929,110 @@ document.addEventListener("click", function(e){
 
 
 
-// ===== NOTES : PASSAGE EN VERT AU CLIC (SAFE) =====
-(function(){
+
+
+
+
+// ===== NOTES AVEC CONDITIONS DYNAMIQUES =====
+(async function(){
+
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
   if(!book || !num) return;
 
+  const container = document.getElementById("notes-slots");
+  if(!container) return;
+
   const key = `hq_notes_read__${book}__${num}`;
+
+  let validatedNotes = new Set();
+  let displayedNotes = new Set();
+  let allNotes = [];
 
   try{
     const saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    document.querySelectorAll(".note-square").forEach(el=>{
-      if(saved.includes(el.textContent.trim())){
-        el.classList.add("read");
-      }
-    });
+    saved.forEach(n => validatedNotes.add(n));
   }catch(e){}
 
-  document.addEventListener("click", function(e){
-    const t = e.target;
-    if(!t || !t.classList || !t.classList.contains("note-square")) return;
-    if(!t.closest("#notes-slots")) return;
+  try{
+    const res = await fetch("quetenote.csv");
+    if(!res.ok) return;
 
-    t.classList.add("read");
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
 
-    const val = t.textContent.trim();
-    let saved = [];
-    try{
-      saved = JSON.parse(sessionStorage.getItem(key) || "[]");
-    }catch(e){}
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
 
-    if(!saved.includes(val)){
-      saved.push(val);
-      sessionStorage.setItem(key, JSON.stringify(saved));
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const letter  = cols[3].trim();
+      const condition = (cols[4] || "").trim();
+      const noteTxt = (cols[5] || "").trim();
+
+      if(csvBook === book && csvNum === num && letter){
+        allNotes.push({
+          letter,
+          condition,
+          text: noteTxt
+        });
+      }
     }
+
+    refreshNotes();
+
+  }catch(e){}
+
+  function conditionMet(condition){
+    if(!condition) return true;
+    const required = condition.split(";").map(c=>c.trim()).filter(c=>c);
+    return required.every(c => validatedNotes.has(c));
+  }
+
+  function refreshNotes(){
+
+    allNotes.forEach(note => {
+
+      if(displayedNotes.has(note.letter)) return;
+
+      if(conditionMet(note.condition)){
+
+        const d = document.createElement("div");
+        d.className = "note-square";
+        d.textContent = note.letter;
+        if(note.text) d.dataset.text = note.text;
+
+        if(validatedNotes.has(note.letter)){
+          d.classList.add("read");
+        }
+
+        container.appendChild(d);
+        displayedNotes.add(note.letter);
+      }
+    });
+  }
+
+  document.addEventListener("click", function(e){
+
+    if(
+      e.target.classList &&
+      e.target.classList.contains("note-square") &&
+      e.target.closest("#notes-slots")
+    ){
+
+      const letter = e.target.textContent.trim();
+
+      validatedNotes.add(letter);
+      e.target.classList.add("read");
+
+      sessionStorage.setItem(key, JSON.stringify([...validatedNotes]));
+
+      refreshNotes();
+    }
+
   });
+
 })();
 
 // ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
