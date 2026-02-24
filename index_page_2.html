@@ -571,7 +571,7 @@ button,
 <body>
 <section id="page2">
   <div class="topbar">
-    <div class="hq">📜 Histoire de la quête</div>
+    <button id="btn-histoire" class="btn hq-btn">📜 Histoire de la quête</button>
     <div class="spacer"></div>
     <button class="btn">Règles</button>
     <button class="btn">Équipements</button>
@@ -1198,6 +1198,72 @@ if(objectifModal){
   });
 }
 
+
+
+// ===== HISTOIRE : OUVERTURE + LECTURE CSV =====
+document.getElementById("btn-histoire").onclick = async function(){
+
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+
+  const modal = document.getElementById("histoireModal");
+  const box   = document.getElementById("histoireBox");
+
+  const old = box.querySelector(".modal-text");
+  if(old) old.remove();
+
+  try{
+    const res = await fetch("histoire.csv");
+    if(!res.ok) return;
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="" );
+
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 5) continue;
+
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const csvTxt  = cols[4].trim();
+
+      if(csvBook === book && csvNum === num){
+
+        const div = document.createElement("div");
+        div.className = "modal-text";
+        div.style.marginTop = "20px";
+        div.style.whiteSpace = "pre-line";
+        div.textContent = csvTxt;
+
+        box.appendChild(div);
+        break;
+      }
+    }
+
+  }catch(e){}
+
+  modal.style.display = "flex";
+};
+
+// ===== FERMETURE CLIC EXTÉRIEUR =====
+const histoireModal = document.getElementById("histoireModal");
+const histoireBox   = document.getElementById("histoireBox");
+
+if(histoireModal){
+  histoireModal.addEventListener("click", function(e){
+    if(e.target === histoireModal){
+      histoireModal.style.display = "none";
+    }
+  });
+}
+
+if(histoireBox){
+  histoireBox.addEventListener("click", function(e){
+    e.stopPropagation();
+  });
+}
+
 </script>
 
 <!-- FIN DE QUÊTE : MODALE MINIMALE -->
@@ -1276,6 +1342,38 @@ if(objectifModal){
 
     <h2 id="objectifModalTitle" style="margin-top:0;">
       OBJECTIF
+    </h2>
+
+  </div>
+</div>
+
+
+<!-- HISTOIRE MODALE -->
+<div id="histoireModal" style="
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  background:rgba(0,0,0,0.75);
+  z-index:10070;
+">
+
+  <div id="histoireBox" style="
+    background:#141418;
+    border:3px solid #8b1a1a;
+    box-shadow:0 0 30px rgba(139,26,26,.6);
+    border-radius:14px;
+    padding:40px;
+    width:min(900px,80vw);
+    max-height:80vh;
+    overflow:auto;
+    color:var(--gold);
+    font-family:'HeroQuestCustom', serif;
+  ">
+
+    <h2 id="histoireTitle" style="margin-top:0;">
+      HISTOIRE
     </h2>
 
   </div>
