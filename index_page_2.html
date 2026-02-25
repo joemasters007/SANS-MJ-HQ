@@ -1265,58 +1265,6 @@ if(histoireBox){
 }
 
 
-// ===== HISTOIRE : DOM READY =====
-document.addEventListener("DOMContentLoaded", function(){
-
-  const btn = document.getElementById("btn-histoire");
-  const modal = document.getElementById("histoireModal");
-  const box = document.getElementById("histoireBox");
-
-  if(!btn || !modal || !box) return;
-
-  btn.onclick = async function(){
-
-    const book = localStorage.getItem("hq_book");
-    const num  = localStorage.getItem("hq_quest_num");
-    if(!book || !num) return;
-
-    const old = box.querySelector(".modal-text");
-    if(old) old.remove();
-
-    try{
-      const res = await fetch("histoire.csv");
-      if(!res.ok) return;
-
-      const text = await res.text();
-      const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="" );
-
-      for(let i=1;i<lines.length;i++){
-        const cols = lines[i].split(";");
-        if(cols.length < 5) continue;
-
-        if(cols[0].trim() === book && cols[1].trim() === num){
-
-          const div = document.createElement("div");
-          div.className = "modal-text";
-          div.style.marginTop = "20px";
-          div.style.whiteSpace = "pre-line";
-          div.textContent = cols[4].trim();
-
-          box.appendChild(div);
-          break;
-        }
-      }
-
-    }catch(e){}
-
-    modal.style.display = "flex";
-  };
-
-  modal.addEventListener("click", function(e){
-    if(e.target === modal){
-      modal.style.display = "none";
-    }
-  });
 
   box.addEventListener("click", function(e){
     e.stopPropagation();
