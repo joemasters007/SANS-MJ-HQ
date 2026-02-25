@@ -565,6 +565,10 @@ button,
               0 0 25px rgba(70,130,255,.5);
   border-right:2px solid rgba(70,130,255,.9) !important;
 }
+
+#histoireClose:hover{
+  background:rgba(217,182,111,.2);
+}
 </style>
 </head>
 
@@ -1265,6 +1269,13 @@ if(histoireModal){
     }
   });
 }
+
+const histoireClose = document.getElementById("histoireClose");
+if(histoireClose){
+  histoireClose.onclick = function(){
+    document.getElementById("histoireModal").style.display = "none";
+  };
+}
 </script>
 
 <!-- FIN DE QUÊTE : MODALE MINIMALE -->
@@ -1373,9 +1384,18 @@ if(histoireModal){
     font-family:'HeroQuestCustom', serif;
   ">
 
-    <h2 id="histoireTitle" style="margin-top:0;">
-      QUÊTE
-    </h2>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+  <h2 id="histoireTitle" style="margin:0;">
+    QUÊTE
+  </h2>
+  <div id="histoireClose" style="
+    cursor:pointer;
+    font-size:22px;
+    color:var(--gold);
+    padding:4px 10px;
+    border-radius:6px;
+  ">✕</div>
+</div>
 
   </div>
 </div>
