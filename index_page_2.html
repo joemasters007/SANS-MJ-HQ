@@ -1270,12 +1270,21 @@ if(histoireModal){
   });
 }
 
-const histoireClose = document.getElementById("histoireClose");
-if(histoireClose){
-  histoireClose.onclick = function(){
-    document.getElementById("histoireModal").style.display = "none";
-  };
-}
+
+
+document.addEventListener("DOMContentLoaded", function(){
+
+  const histoireClose = document.getElementById("histoireClose");
+  const histoireModal = document.getElementById("histoireModal");
+
+  if(histoireClose && histoireModal){
+    histoireClose.addEventListener("click", function(e){
+      e.stopPropagation();
+      histoireModal.style.display = "none";
+    });
+  }
+
+});
 </script>
 
 <!-- FIN DE QUÊTE : MODALE MINIMALE -->
