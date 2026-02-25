@@ -1226,9 +1226,7 @@ async function openHistoire(){
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split(/
-?
-/).filter(l=>l.trim()!=="");
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
 
     for(let i=1;i<lines.length;i++){
       const cols = lines[i].split(";");
