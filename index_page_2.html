@@ -683,10 +683,15 @@ function initHeroSelection(HEROES){
 
 function placeHeroes(list){
   overlay.style.display="none";
+
   const slots=[0,1,2,3].sort(()=>Math.random()-0.5);
   list.forEach((h,i)=>{
     heroGrid[slots[i]].innerHTML =
       `<img src="images/${h.toLowerCase()}.jpg">`;
+  });
+
+  openHistoire();
+}.jpg">`;
   });
 }
 
@@ -1200,8 +1205,8 @@ if(objectifModal){
 
 
 
-// ===== HISTOIRE : OUVERTURE + LECTURE CSV =====
-document.getElementById("btn-histoire").onclick = async function(){
+// ===== HISTOIRE : FONCTION PROPRE =====
+async function openHistoire(){
 
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
@@ -1209,6 +1214,11 @@ document.getElementById("btn-histoire").onclick = async function(){
 
   const modal = document.getElementById("histoireModal");
   const box   = document.getElementById("histoireBox");
+  const title = document.getElementById("histoireTitle");
+
+  if(!modal || !box || !title) return;
+
+  title.textContent = "QUÊTE";
 
   const old = box.querySelector(".modal-text");
   if(old) old.remove();
@@ -1218,23 +1228,20 @@ document.getElementById("btn-histoire").onclick = async function(){
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="" );
+    const lines = text.split(/?
+/).filter(l=>l.trim()!=="");
 
     for(let i=1;i<lines.length;i++){
       const cols = lines[i].split(";");
       if(cols.length < 5) continue;
 
-      const csvBook = cols[0].trim();
-      const csvNum  = cols[1].trim();
-      const csvTxt  = cols[4].trim();
-
-      if(csvBook === book && csvNum === num){
+      if(cols[0].trim() === book && cols[1].trim() === num){
 
         const div = document.createElement("div");
         div.className = "modal-text";
         div.style.marginTop = "20px";
         div.style.whiteSpace = "pre-line";
-        div.textContent = csvTxt;
+        div.textContent = cols[4].trim();
 
         box.appendChild(div);
         break;
@@ -1244,23 +1251,21 @@ document.getElementById("btn-histoire").onclick = async function(){
   }catch(e){}
 
   modal.style.display = "flex";
-};
+}
 
-// ===== FERMETURE CLIC EXTÉRIEUR =====
+document.addEventListener("DOMContentLoaded", function(){
+  const btn = document.getElementById("btn-histoire");
+  if(btn){
+    btn.onclick = openHistoire;
+  }
+});
+
 const histoireModal = document.getElementById("histoireModal");
-const histoireBox   = document.getElementById("histoireBox");
-
 if(histoireModal){
   histoireModal.addEventListener("click", function(e){
     if(e.target === histoireModal){
       histoireModal.style.display = "none";
     }
-  });
-}
-
-if(histoireBox){
-  histoireBox.addEventListener("click", function(e){
-    e.stopPropagation();
   });
 }
 </script>
@@ -1372,7 +1377,7 @@ if(histoireBox){
   ">
 
     <h2 id="histoireTitle" style="margin-top:0;">
-      HISTOIRE
+      QUÊTE
     </h2>
 
   </div>
