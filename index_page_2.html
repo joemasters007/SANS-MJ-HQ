@@ -1512,7 +1512,7 @@ function updateUI(){
   container.innerHTML = "";
   displayedCards.forEach(c=>{
     const img = document.createElement("img");
-    img.src = "images/" + c.name + ".jpg";
+    img.src = "cartes/" + c.name + ".jpg";
     container.appendChild(img);
   });
   document.getElementById("soloCounter").textContent =
@@ -1534,6 +1534,11 @@ function endSolo(){
 
 document.getElementById("soloClose").addEventListener("click", function(){
   document.getElementById("soloModal").style.display = "none";
+});
+
+
+document.getElementById("soloBox").addEventListener("click", function(e){
+  e.stopPropagation();
 });
 
 document.getElementById("soloModal").addEventListener("click", function(e){
