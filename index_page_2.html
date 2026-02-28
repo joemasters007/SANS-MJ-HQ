@@ -569,6 +569,15 @@ button,
 #histoireClose:hover{
   background:rgba(217,182,111,.2);
 }
+
+/* ===== MODE SOLO MODALE ===== */
+#soloModal{position:fixed;inset:0;display:none;background:rgba(0,0,0,0.85);z-index:11000;}
+#soloBox{position:absolute;left:0;top:50%;transform:translateY(-50%);width:50vw;background:#141418;border-right:3px solid var(--gold);padding:30px;color:var(--gold);}
+#soloCards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
+#soloCards img{width:120px;border-radius:8px;border:2px solid var(--gold);}
+.solo-controls{display:flex;gap:10px;margin-bottom:10px;}
+.solo-btn{background:var(--ink);border:1px solid var(--gold);color:var(--gold);padding:6px 14px;border-radius:8px;cursor:pointer;}
+
 </style>
 </head>
 
@@ -1401,6 +1410,127 @@ document.addEventListener("DOMContentLoaded", function(){
   }
 
 });
+
+/* ============================
+   MODE SOLO - MOTEUR PIOCHE
+============================ */
+const soloTile = document.querySelector(".tile");
+let baseDeck = [];
+let currentDeck = [];
+let displayedCards = [];
+let discardCount = 0;
+let rebuildCount = 0;
+const MAX_REBUILDS = 2;
+
+soloTile.addEventListener("click", openSolo);
+
+async function openSolo(){
+  const book = localStorage.getItem("hq_book");
+  const num  = localStorage.getItem("hq_quest_num");
+  if(!book || !num) return;
+  await buildBaseDeck(book,num);
+  currentDeck = shuffle([...baseDeck]);
+  discardCount = 0;
+  rebuildCount = 0;
+  displayedCards = [];
+  updateUI();
+  document.getElementById("soloModal").style.display = "block";
+}
+
+async function buildBaseDeck(book,num){
+  const res = await fetch("cartes.csv");
+  const txt = await res.text();
+  const lines = txt.split("\n").filter(l=>l.trim()!== "");
+  baseDeck = [];
+  for(let i=1;i<lines.length;i++){
+    const cols = lines[i].split(";");
+    if(cols.length < 4) continue;
+    const name = cols[0].trim();
+    const csvBook = cols[1].trim();
+    const csvQuest = cols[2].trim();
+    const objectif = cols[3].trim();
+    if(matchBook(csvBook,book) && matchQuest(csvQuest,num)){
+      baseDeck.push({name,objectif});
+    }
+  }
+}
+
+function matchBook(csv,book){
+  if(csv.toLowerCase()==="all") return true;
+  if(csv.includes(",")) return csv.split(",").map(b=>b.trim()).includes(book);
+  return csv===book;
+}
+
+function matchQuest(csv,num){
+  if(csv.toLowerCase()==="all") return true;
+  if(csv.includes(",")) return csv.split(",").map(q=>q.trim()).includes(num);
+  return csv===num;
+}
+
+function shuffle(arr){ return arr.sort(()=>Math.random()-0.5); }
+
+document.getElementById("soloDraw").addEventListener("click", function(){
+  if(displayedCards.length>=4) return;
+  if(currentDeck.length===0) return;
+  const card = currentDeck.shift();
+  displayedCards.push(card);
+  updateUI();
+});
+
+document.getElementById("soloDiscard").addEventListener("click", function(){
+  discardCount += displayedCards.length;
+  displayedCards = [];
+  if(currentDeck.length===0) handleRebuild();
+  updateUI();
+});
+
+function handleRebuild(){
+  if(rebuildCount >= MAX_REBUILDS){ endSolo(); return; }
+  rebuildCount++;
+  const nonObj = baseDeck.filter(c=>c.objectif==="0");
+  if(nonObj.length>0){
+    const remove = nonObj[Math.floor(Math.random()*nonObj.length)];
+    baseDeck = baseDeck.filter(c=>c!==remove);
+  }
+  currentDeck = shuffle([...baseDeck]);
+  discardCount = 0;
+}
+
+function updateUI(){
+  const container = document.getElementById("soloCards");
+  container.innerHTML = "";
+  displayedCards.forEach(c=>{
+    const img = document.createElement("img");
+    img.src = "cartes/" + c.name + ".jpg";
+    container.appendChild(img);
+  });
+  document.getElementById("soloCounter").textContent =
+    "Cartes défaussées : " + discardCount;
+  document.getElementById("soloRemaining").textContent =
+    "Cartes restantes : " + currentDeck.length;
+}
+
+function endSolo(){
+  document.getElementById("soloCards").innerHTML = "";
+  document.getElementById("soloCounter").textContent = "";
+  document.getElementById("soloRemaining").innerHTML =
+    "<br><strong>Les héros sont épuisés…</strong><br>" +
+    "La quête doit être rejouée.<br>" +
+    "Vous gardez l'or trouvé,<br>" +
+    "mais pas les équipements,<br>" +
+    "trop fatigués pour les porter.";
+}
+
+document.getElementById("soloClose").addEventListener("click", function(){
+  document.getElementById("soloModal").style.display = "none";
+});
+
+document.getElementById("soloModal").addEventListener("click", function(e){
+  if(e.target.id==="soloModal"){
+    document.getElementById("soloModal").style.display="none";
+  }
+});
+
 </script>
 
 <!-- FIN DE QUÊTE : MODALE MINIMALE -->
@@ -1522,6 +1652,24 @@ document.addEventListener("DOMContentLoaded", function(){
   ">✕</div>
 </div>
 
+  </div>
+</div>
+
+
+<!-- MODE SOLO MODALE -->
+<div id="soloModal">
+  <div id="soloBox">
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+      <h2>MODE SOLO</h2>
+      <div id="soloClose" style="cursor:pointer;font-size:22px;">✕</div>
+    </div>
+    <div id="soloCards"></div>
+    <div class="solo-controls">
+      <button id="soloDraw" class="solo-btn">Piocher</button>
+      <button id="soloDiscard" class="solo-btn">Défausser</button>
+    </div>
+    <div id="soloCounter">Cartes défaussées : 0</div>
+    <div id="soloRemaining"></div>
   </div>
 </div>
 
