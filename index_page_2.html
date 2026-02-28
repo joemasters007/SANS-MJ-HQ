@@ -572,7 +572,18 @@ button,
 
 /* ===== MODE SOLO MODALE ===== */
 #soloModal{position:fixed;inset:0;display:none;background:rgba(0,0,0,0.85);z-index:11000;}
-#soloBox{position:absolute;left:0;top:50%;transform:translateY(-50%);width:50vw;background:#141418;border-right:3px solid var(--gold);padding:30px;color:var(--gold);}
+#soloBox{
+  position:absolute;
+  left:0;
+  top:50%;
+  transform:translateY(-50%);
+  width:50vw;
+  background:#141418;
+  border:3px solid var(--gold);
+  box-shadow:0 0 30px rgba(217,182,111,.5);
+  padding:30px;
+  color:var(--gold);
+}
 #soloCards{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px;}
 #soloCards img{width:120px;border-radius:8px;border:2px solid var(--gold);}
 .solo-controls{display:flex;gap:10px;margin-bottom:10px;}
@@ -1501,7 +1512,7 @@ function updateUI(){
   container.innerHTML = "";
   displayedCards.forEach(c=>{
     const img = document.createElement("img");
-    img.src = "cartes/" + c.name + ".jpg";
+    img.src = "images/" + c.name + ".jpg";
     container.appendChild(img);
   });
   document.getElementById("soloCounter").textContent =
