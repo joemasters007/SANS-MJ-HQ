@@ -607,9 +607,9 @@ border-radius:10px;
 
 /* ===== NORMALISATION CARTES ===== */
 #soloCards img{
-  width:180px;
-  height:216px;
-  object-fit:contain;
+  width:340px;
+  height:400px;
+  object-fit:cover;
   background:none;
 }
 
@@ -1281,904 +1281,8 @@ window.validatedObjectives = new Set();
 
 })();
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// ===== OBJECTIFS : OUVERTURE + FERMETURE PROPRE =====
-document.addEventListener("click", function(e){
-
-  const modal = document.getElementById("objectifModal");
-  const title = document.getElementById("objectifModalTitle");
-  if(!modal || !title) return;
-
-  // ouverture
-  if(
-    e.target.classList &&
-    e.target.classList.contains("objective-square") &&
-    e.target.closest("#objectifs-slots")
-  ){
-
-    title.textContent = "OBJECTIF " + e.target.textContent;
-
-    const old = modal.querySelector(".modal-text");
-    if(old) old.remove();
-
-    const txt = e.target.dataset.text || "";
-    if(txt){
-      const div = document.createElement("div");
-      div.className = "modal-text";
-      div.style.marginTop = "20px";
-      div.style.whiteSpace = "pre-line";
-      div.textContent = txt;
-      title.after(div);
-    }
-
-    
-    const objNum = e.target.textContent.trim();
-    if(!window.validatedObjectives.has(objNum)){
-      window.validatedObjectives.add(objNum);
-    }
-
-    e.target.classList.add("read-objective");
-    if(window.forceRenderNotes) window.forceRenderNotes();
-    if(typeof updatePlan==='function') updatePlan();
-    loadObjectifs();
-    modal.style.display = "block";
-    document.getElementById("objectifBox").classList.add("objectif-open");
-  }
-
-  // fermeture
-  if(e.target.id === "objectifModal"){
-    modal.style.display = "none";
-    document.getElementById("objectifBox").classList.remove("objectif-open");
-  }
-});
-
-
-
-// ===== NOTE MODALE =====
-const noteModal = document.getElementById("noteModal");
-if(noteModal){
-  noteModal.addEventListener("click", function(e){
-    if(e.target === noteModal){
-      noteModal.style.display = "none";
-    }
-  });
-}
-
-// ===== OBJECTIF MODALE =====
-const objectifModal = document.getElementById("objectifModal");
-if(objectifModal){
-  objectifModal.addEventListener("click", function(e){
-    if(e.target === objectifModal){
-      objectifModal.style.display = "none";
-    }
-  });
-}
-
-
-
-// ===== HISTOIRE : FONCTION PROPRE =====
-async function openHistoire(){
-
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
-
-  const modal = document.getElementById("histoireModal");
-  const box   = document.getElementById("histoireBox");
-  const title = document.getElementById("histoireTitle");
-
-  if(!modal || !box || !title) return;
-
-  title.textContent = "QUÊTE";
-
-  const old = box.querySelector(".modal-text");
-  if(old) old.remove();
-
-  try{
-    const res = await fetch("histoire.csv");
-    if(!res.ok) return;
-
-    const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(";");
-      if(cols.length < 5) continue;
-
-      if(cols[0].trim() === book && cols[1].trim() === num){
-
-        const div = document.createElement("div");
-        div.className = "modal-text";
-        div.style.marginTop = "20px";
-        div.style.whiteSpace = "pre-line";
-        div.textContent = cols[4].trim();
-
-        box.appendChild(div);
-        break;
-      }
-    }
-
-  }catch(e){}
-
-  modal.style.display = "flex";
-}
-
-document.addEventListener("DOMContentLoaded", function(){
-  const btn = document.getElementById("btn-histoire");
-  if(btn){
-    btn.onclick = openHistoire;
-  }
-});
-
-const histoireModal = document.getElementById("histoireModal");
-if(histoireModal){
-  histoireModal.addEventListener("click", function(e){
-    if(e.target === histoireModal){
-      histoireModal.style.display = "none";
-    }
-  });
-}
-
-
-
-document.addEventListener("DOMContentLoaded", function(){
-
-  const histoireClose = document.getElementById("histoireClose");
-  const histoireModal = document.getElementById("histoireModal");
-
-  if(histoireClose && histoireModal){
-    histoireClose.addEventListener("click", function(e){
-      e.stopPropagation();
-      histoireModal.style.display = "none";
-    });
-  }
-
-});
-
-/* ============================
-   MODE SOLO PROPRE & ISOLÉ
-============================ */
-
-let baseDeck = [];
-let currentDeck = [];
-let displayedCards = [];
-let totalDiscard = 0;
-let rebuildCount = 0;
-const MAX_REBUILDS = 2;
-
-document.addEventListener("DOMContentLoaded", function(){
-
-  const soloTile = document.getElementById("modeSoloTile");
-  if(soloTile){
-    soloTile.addEventListener("click", openSolo);
-  }
-
-  const soloDraw = document.getElementById("soloDraw");
-  const soloDiscard = document.getElementById("soloDiscard");
-  const soloModal = document.getElementById("soloModal");
-  const soloClose = document.getElementById("soloClose");
-
-  if(soloDraw){
-    soloDraw.addEventListener("click", function(){
-      if(displayedCards.length>=4) return;
-      if(currentDeck.length===0) return;
-      const card = currentDeck.shift();
-      displayedCards.push(card);
-      updateSoloUI();
-    });
-  }
-
-  if(soloDiscard){
-    soloDiscard.addEventListener("click", function(){
-      totalDiscard += displayedCards.length;
-      displayedCards = [];
-      if(currentDeck.length===0){
-        rebuildDeck();
-      }
-      updateSoloUI();
-    });
-  }
-
-  if(soloClose){
-    soloClose.addEventListener("click", function(){
-      soloModal.style.display="none";
-    });
-  }
-
-  if(soloModal){
-    soloModal.addEventListener("click", function(e){
-      if(e.target.id==="soloModal"){
-        soloModal.style.display="none";
-      }
-    });
-  }
-
-});
-
-async function openSolo(){
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
-
-  await buildDeck(book,num);
-
-  currentDeck = shuffle([...baseDeck]);
-  displayedCards = [];
-  rebuildCount = 0;
-  totalDiscard = 0;
-
-  updateSoloUI();
-  document.getElementById("soloModal").style.display = "block";
-}
-
-async function buildDeck(book,num){
-  const res = await fetch("cartes.csv");
-  const txt = await res.text();
-  const lines = txt.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-  baseDeck = [];
-
-  for(let i=1;i<lines.length;i++){
-    const cols = lines[i].split(";");
-    if(cols.length < 4) continue;
-
-    const name = cols[0].trim().replace(/\r/g,"");
-    const csvBook = cols[1].trim();
-    const csvQuest = cols[2].trim();
-    const objectif = cols[3].trim();
-
-    if(match(csvBook,book) && match(csvQuest,num)){
-      baseDeck.push({name,objectif});
-    }
-  }
-}
-
-function match(csv,val){
-  if(csv.toLowerCase()==="all") return true;
-  if(csv.includes(",")) return csv.split(",").map(v=>v.trim()).includes(val);
-  return csv===val;
-}
-
-function shuffle(arr){
-  return arr.sort(()=>Math.random()-0.5);
-}
-
-function rebuildDeck(){
-  if(rebuildCount >= MAX_REBUILDS){
-    endSolo();
-    return;
-  }
-
-  rebuildCount++;
-
-  const nonObj = baseDeck.filter(c=>c.objectif==="0");
-  if(nonObj.length>0){
-    const remove = nonObj[Math.floor(Math.random()*nonObj.length)];
-    baseDeck = baseDeck.filter(c=>c!==remove);
-  }
-
-  currentDeck = shuffle([...baseDeck]);
-}
-
-
-function updateSoloUI(){
-
-const container = document.getElementById("soloCards");
-container.innerHTML = "";
-
-displayedCards.forEach(c=>{
-
-const img = document.createElement("img");
-
-img.style.width = "180px";
-img.style.height = "216px";
-img.style.borderRadius = "0";
-img.style.border = "none";
-img.style.boxShadow = "none";
-img.style.objectFit = "contain";
-
-img.src = "cartes/" + c.name + ".png";
-
-img.onerror = function(){
-this.onerror = null;
-this.src = "cartes/" + c.name + ".jpg";
-};
-
-container.appendChild(img);
-
-});
-
-document.getElementById("soloCounter").textContent =
-"Cartes défaussées : " + totalDiscard;
-
-document.getElementById("soloRemaining").textContent =
-"Cartes restantes : " + currentDeck.length;
-
-}
-
-
-
-document.addEventListener("DOMContentLoaded", function(){
-
-const rollBtn = document.getElementById("rollDice");
-
-if(rollBtn){
-
-rollBtn.addEventListener("click", function(){
-
-const d1 = Math.floor(Math.random()*6)+1;
-const d2 = Math.floor(Math.random()*6)+1;
-
-document.getElementById("dice1").textContent = d1;
-document.getElementById("dice2").textContent = d2;
-
-});
-
-}
-
-});
-
-function endSolo(){
-  document.getElementById("soloCards").innerHTML = "";
-  document.getElementById("soloRemaining").innerHTML =
-    "<br><strong>Les héros sont épuisés…</strong><br>" +
-    "La quête doit être rejouée.<br>" +
-    "Vous gardez l'or trouvé,<br>" +
-    "mais pas les équipements,<br>" +
-    "trop fatigués pour les porter.";
-}
-
-</script>
-
-<!-- FIN DE QUÊTE : MODALE MINIMALE -->
-<div id="fin-quete-modal" style="
-  position:fixed; inset:0;
-  background:rgba(0,0,0,.7);
-  display:none;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-">
-  <div style="
-    background:#141418;
-    border:1px solid var(--gold);
-    border-radius:14px;
-    padding:16px;
-    width:min(900px,90vw);
-  ">
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px">
-      <a href="index.html"><img src="images/livre.jpg" style="width:100%;border-radius:10px;cursor:pointer"></a>
-      <a href="index_page_3.html"><img src="images/ville.jpg" style="width:100%;border-radius:10px;cursor:pointer"></a>
-    </div>
-    <div style="text-align:center">
-      <button class="btn hq-btn"
-        onclick="document.getElementById('fin-quete-modal').style.display='none'">
-        Continuer la quête
-      </button>
-    </div>
-  </div>
-</div>
-
-
-<!-- NOTE MODALE SIMPLE -->
-<div id="noteModal" style="
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,0.7);
-  z-index:10050;
-">
-  <div style="
-    background:#141418;
-    border:1px solid var(--gold);
-    border-radius:12px;
-    padding:18px 22px;
-    font-family:'Cinzel Decorative','Uncial Antiqua',serif;
-    color:var(--gold);
-    letter-spacing:2px;
-  ">
-    <div id="noteModalTitle">NOTE</div>
-  </div>
-</div>
-
-
-<!-- OBJECTIF MODALE -->
-<div id="objectifModal" style="
-  position:fixed;
-  inset:0;
-  display:none;
-  background:rgba(0,0,0,0.9);
-  z-index:10060;
-">
-
-  <div id="objectifBox" style="
-    position:absolute;
-    left:0;
-    top:50%;
-    transform:translateY(-50%);
-    width:55vw;
-    background:#141418;
-    border-right:2px solid var(--gold);
-    padding:40px;
-  ">
-
-    <h2 id="objectifModalTitle" style="margin-top:0;">
-      OBJECTIF
-    </h2>
-
-  </div>
-</div>
-
-
-<!-- HISTOIRE MODALE -->
-<div id="histoireModal" style="
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,0.75);
-  z-index:10070;
-">
-
-  <div id="histoireBox" style="
-    background:#141418;
-    border:3px solid #8b1a1a;
-    box-shadow:0 0 30px rgba(139,26,26,.6);
-    border-radius:14px;
-    padding:40px;
-    width:min(900px,80vw);
-    max-height:80vh;
-    overflow:auto;
-    color:var(--gold);
-    font-family:'HeroQuestCustom', serif;
-  ">
-
-    <div style="display:flex; justify-content:space-between; align-items:center;">
-  <h2 id="histoireTitle" style="margin:0;">
-    QUÊTE
-  </h2>
-  <div id="histoireClose" style="
-    cursor:pointer;
-    font-size:22px;
-    color:var(--gold);
-    padding:4px 10px;
-    border-radius:6px;
-  ">✕</div>
-</div>
-
-  </div>
-</div>
-
-
-
-
-<!-- MODE SOLO MODALE -->
-<div id="soloModal" style="
-position:fixed;
-inset:0;
-display:none;
-background:rgba(0,0,0,0.75);
-z-index:11000;
-">
-
-<div id="soloBox" style="
-position:absolute;
-left:0;
-top:50%;
-transform:translateY(-50%);
-height:90vh;
-width:45vw;
-max-width:900px;
-background:#141418;
-border:3px solid #6a2c91;
-box-shadow:0 0 40px rgba(106,44,145,.6);
-padding:30px;
-color:var(--gold);
-display:flex;
-flex-direction:column;
-overflow-y:auto;
-overflow-x:hidden;
-">
-
-<!-- HEADER -->
-<div style="
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:15px;
-">
-
-<h2 style="margin:0;">Mode Solo</h2>
-
-<div style="
-display:flex;
-align-items:center;
-gap:15px;
-">
-
-
-<div id="diceBox" style="
-display:flex;
-align-items:center;
-gap:8px;
-font-size:18px;
-">
-🎲 <span id="dice1">1</span>
-🎲 <span id="dice2">1</span>
-<button id="rollDice" class="btn hq-btn">Lancer</button>
-</div>
-
-<div id="soloCounter">Cartes défaussées : 0</div>
-<div id="soloRemaining"></div>
-
-<button id="soloDraw" class="btn hq-btn">Piocher</button>
-<button id="soloDiscard" class="btn hq-btn">Défausser</button>
-
-<div id="soloClose" style="
-cursor:pointer;
-font-size:26px;
-margin-left:10px;
-">✕</div>
-
-</div>
-</div>
-
-<!-- CARTES -->
-<div id="soloCards" class="solo-grid" style="
-flex:1;
-display:grid;
-grid-template-columns:1fr 1fr;
-grid-template-rows:1fr 1fr;
-gap:18px;
-height:calc(100vh - 140px);
-"></div>
-
-</div>
-</div>
-</div>
-
-
-
-<!-- EVENEMENT & PIEGE MODALE -->
-<div id="eventModal" style="
-position:fixed;
-inset:0;
-display:none;
-background:rgba(0,0,0,0.85);
-z-index:12000;
-">
-
-<div style="
-position:absolute;
-left:0;
-top:50%;
-transform:translateY(-50%);
-width:55vw;
-background:#141418;
-border:3px solid var(--gold);
-box-shadow:0 0 30px rgba(217,182,111,.5);
-padding:30px;
-color:var(--gold);
-">
-
-<div style="
-display:flex;
-align-items:center;
-justify-content:space-between;
-margin-bottom:15px;
-">
-
-<h2 style="margin:0;">ÉVÉNEMENT & PIÈGE</h2>
-
-<div style="display:flex;gap:10px;align-items:center;">
-
-<button id="eventDraw" class="btn hq-btn">Piocher</button>
-<button id="eventDiscard" class="btn hq-btn">Défausser</button>
-
-<div id="eventClose" style="
-cursor:pointer;
-font-size:22px;
-margin-left:10px;
-">✕</div>
-
-</div>
-</div>
-
-<div id="eventCard" style="
-display:flex;
-justify-content:center;
-align-items:center;
-min-height:460px;
-"></div>
-
-</div>
-</div>
-
-<script>
-/* ============================
-   EVENEMENT & PIEGE
-============================ */
-
-let eventBaseDeck = [];
-let eventDeck = [];
-let eventCurrent = null;
-
-document.addEventListener("DOMContentLoaded", function(){
-
-const tile = document.getElementById("eventTile");
-
-if(tile){
-tile.addEventListener("click", openEvent);
-}
-
-document.getElementById("eventDraw").onclick = drawEvent;
-document.getElementById("eventDiscard").onclick = discardEvent;
-
-document.getElementById("eventClose").onclick = ()=>{
-document.getElementById("eventModal").style.display="none";
-};
-
-});
-
-
-async function openEvent(){
-
-const book = localStorage.getItem("hq_book");
-const num  = localStorage.getItem("hq_quest_num");
-
-if(!book || !num) return;
-
-await buildEventDeck(book,num);
-
-eventDeck = shuffleEvent([...eventBaseDeck]);
-
-document.getElementById("eventModal").style.display="block";
-
-if(!eventCurrent){
-drawEvent();
-}else{
-showEventCard(eventCurrent);
-}
-
-}
-
-
-async function buildEventDeck(book,num){
-
-const res = await fetch("event.csv");
-const txt = await res.text();
-
-const lines = txt.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-eventBaseDeck = [];
-
-for(let i=1;i<lines.length;i++){
-
-const cols = lines[i].split(";");
-
-if(cols.length < 3) continue;
-
-const name = cols[0].trim().replace(/\r/g,"");
-const csvBook = cols[1].trim();
-const csvQuest = cols[2].trim();
-
-if(matchEvent(csvBook,book) && matchEvent(csvQuest,num)){
-eventBaseDeck.push(name);
-}
-
-}
-
-}
-
-
-function matchEvent(csv,val){
-
-if(csv.toLowerCase()==="all") return true;
-
-if(csv.includes(",")){
-return csv.split(",").map(v=>v.trim()).includes(val);
-}
-
-return csv===val;
-
-}
-
-
-function shuffleEvent(arr){
-return arr.sort(()=>Math.random()-0.5);
-}
-
-
-function drawEvent(){
-
-if(eventCurrent) return;
-
-if(eventDeck.length===0){
-eventDeck = shuffleEvent([...eventBaseDeck]);
-}
-
-const card = eventDeck.shift();
-
-eventCurrent = card;
-
-eventCurrent = card;
-showEventCard(card);
-
-}
-
-
-
-function showEventCard(card){
-
-const container = document.getElementById("eventCard");
-
-container.innerHTML="";
-
-const img = document.createElement("img");
-
-img.style.width = "180px";
-img.style.height = "216px";
-img.style.objectFit = "contain";
-
-img.src = "cartes/" + card + ".jpg";
-
-img.onerror = function(){
-this.onerror = null;
-this.src = "cartes/" + card + ".png";
-};
-
-container.appendChild(img);
-
-}
-
-function discardEvent(){
-
-if(!eventCurrent) return;
-
-eventCurrent = null;
-
-document.getElementById("eventCard").innerHTML="";
-
-}
-</script>
-
-<script>
-/* ============================
-   PLAN DYNAMIQUE (plan.csv)
-============================ */
-
-let planSteps = [];
-
-document.addEventListener("DOMContentLoaded", loadPlan);
-
-async function loadPlan(){
-
-const book = localStorage.getItem("hq_book");
-const num  = localStorage.getItem("hq_quest_num");
-
-if(!book || !num) return;
-
-try{
-
-const res = await fetch("plan.csv");
-if(!res.ok) return;
-
-const txt = await res.text();
-const lines = txt.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-planSteps = [];
-
-for(let i=1;i<lines.length;i++){
-
-const cols = lines[i].split(";");
-if(cols.length < 5) continue;
-
-const csvBook = cols[0].trim();
-const csvNum  = cols[1].trim();
-const condition = (cols[3] || "").trim();
-const image = (cols[4] || "").trim();
-
-if(csvBook === book && csvNum === num){
-
-planSteps.push({
-condition,
-image
-});
-
-}
-
-}
-
-updatePlan();
-
-}catch(e){
-console.warn("Erreur lecture plan.csv", e);
-}
-
-}
-
-function planConditionMet(condition){
-
-if(!condition) return true;
-
-const required = condition
-.split(",")
-.map(c=>c.trim())
-.filter(Boolean);
-
-return required.every(c => {
-
-if(c.startsWith("OBJ")){
-const num = c.replace("OBJ","");
-return window.validatedObjectives &&
-window.validatedObjectives.has(num);
-}
-
-return document.querySelector(`.note-square.read[data-letter="${c}"]`);
-
-});
-
-}
-
-function updatePlan(){
-
-if(planSteps.length === 0) return;
-
-let currentImage = null;
-
-for(const step of planSteps){
-
-if(planConditionMet(step.condition)){
-currentImage = step.image;
-}
-
-}
-
-if(!currentImage) return;
-
-const container = document.querySelector(".right-plan");
-if(!container) return;
-
-let img = container.querySelector("img");
-
-if(!img){
-
-img = document.createElement("img");
-
-img.style.width = "180px";
-img.style.height = "216px";
-img.style.objectFit = "contain";
-
-container.appendChild(img);
-
-}
-
-img.src = "images/" + currentImage + ".png";
-
-}
-</script>
-
-<script>
-// ===== OBJECTIFS : LECTURE CSV AVEC CONDITIONS (NOTES + OBJ) =====
-async function loadObjectifs(){
+// ===== OBJECTIFS AVEC CONDITIONS (même logique que NOTES) =====
+(async function(){
 
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
@@ -2187,27 +1291,24 @@ async function loadObjectifs(){
   const container = document.getElementById("objectifs-slots");
   if(!container) return;
 
-  container.innerHTML = "";
-
   try{
-
     const res = await fetch("queteobjectif.csv");
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+    const lines = text.split(/?
+/).filter(l=>l.trim()!=="");
 
     for(let i=1;i<lines.length;i++){
 
       const cols = lines[i].split(";");
-
       if(cols.length < 4) continue;
 
       const csvBook = cols[0].trim();
       const csvNum  = cols[1].trim();
       const objNum  = cols[3].trim();
       const condition = (cols[4] || "").trim();
-      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
+      const objTxt  = (cols[5] || "").trim();
 
       if(csvBook !== book || csvNum !== num || !objNum) continue;
 
@@ -2233,7 +1334,6 @@ async function loadObjectifs(){
         });
 
         if(!ok) continue;
-
       }
 
       const d = document.createElement("div");
@@ -2243,13 +1343,25 @@ async function loadObjectifs(){
       if(objTxt) d.dataset.text = objTxt;
 
       container.appendChild(d);
-
     }
 
   }catch(e){}
 
-}
-loadObjectifs();
+})();
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // ===== OBJECTIFS : OUVERTURE + FERMETURE PROPRE =====
 document.addEventListener("click", function(e){
@@ -2289,7 +1401,6 @@ document.addEventListener("click", function(e){
     e.target.classList.add("read-objective");
     if(window.forceRenderNotes) window.forceRenderNotes();
     if(typeof updatePlan==='function') updatePlan();
-    loadObjectifs();
     modal.style.display = "block";
     document.getElementById("objectifBox").classList.add("objectif-open");
   }
@@ -2539,8 +1650,8 @@ displayedCards.forEach(c=>{
 
 const img = document.createElement("img");
 
-img.style.width = "180px";
-img.style.height = "216px";
+img.style.width = "340px";
+img.style.height = "400px";
 img.style.borderRadius = "0";
 img.style.border = "none";
 img.style.boxShadow = "none";
@@ -2988,9 +2099,9 @@ container.innerHTML="";
 
 const img = document.createElement("img");
 
-img.style.width = "180px";
-img.style.height = "216px";
-img.style.objectFit = "contain";
+img.style.width = "340px";
+img.style.height = "400px";
+img.style.objectFit = "cover";
 
 img.src = "cartes/" + card + ".jpg";
 
@@ -3117,8 +2228,8 @@ if(!img){
 
 img = document.createElement("img");
 
-img.style.width = "180px";
-img.style.height = "216px";
+img.style.width = "100%";
+img.style.height = "100%";
 img.style.objectFit = "contain";
 
 container.appendChild(img);
@@ -3128,10 +2239,6 @@ container.appendChild(img);
 img.src = "images/" + currentImage + ".png";
 
 }
-</script>
-</body>
-</html>
-
 </script>
 </body>
 </html>
