@@ -1281,41 +1281,7 @@ window.validatedObjectives = new Set();
 
 })();
 
-// ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
-(async function(){
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
 
-  const container = document.getElementById("objectifs-slots");
-  if(!container) return;
-
-  try{
-    const res = await fetch("queteobjectif.csv");
-    if(!res.ok) return;
-
-    const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(";");
-      if(cols.length < 4) continue;
-
-      const csvBook = cols[0].trim();
-      const csvNum  = cols[1].trim();
-      const objNum  = cols[3].trim();
-      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
-
-      if(csvBook === book && csvNum === num && objNum){
-        const d = document.createElement("div");
-        d.className = "objective-square";
-        d.textContent = objNum;
-        if(objTxt) d.dataset.text = objTxt;
-        container.appendChild(d);
-      }
-    }
-  }catch(e){}
-})();
 
 
 
