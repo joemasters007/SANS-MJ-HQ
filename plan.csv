@@ -1,0 +1,31 @@
+﻿livrede campagne;numero de quete;nom de la quete;condition ;nom du plan ;lu
+Héroquest le début;1;L' épreuve;;1quete1;0
+Héroquest le début;2;A la rescousse de Sir Ragnar;;1quete2;0
+Héroquest le début;2;A la rescousse de Sir Ragnar;OBJ3;1quete2a;0
+Héroquest le début;3;Le repaire du seigneur de guerre orc;;1quete3;0
+Héroquest le début;4;L' or du prince Magnus;;1quete4;0
+Héroquest le début;4;L' or du prince Magnus;OBJ3;1quete4a;0
+Héroquest le début;5;La descendance du seigneur de guerre orc;;1quete5;0
+Héroquest le début;6;Le labyrinthe de Melar;;1quete6;0
+Héroquest le début;7;L' enchanteur disparu;;1quete7;0
+Héroquest le début;8; Le mage du feu;;1quete8;0
+Héroquest le début;8; Le mage du feu;OBJ3;1quete8a;0
+Héroquest le début;9;Course contre la montre;;1quete9;0
+Héroquest le début;10;Le Chateau Mysterieux;;1quete10;0
+Héroquest le début;11;Le Bastion de la Terreur;;1quete11;0
+Héroquest le début;11;Le Bastion de la Terreur;OBJ3;1quete11a;0
+Héroquest le début;12;Barak Tor;;1quete12;0
+Héroquest le début;13;La quête de l' épée mystique;;1quete13;0
+Héroquest le début;14;Retour à Barak Tor;;1quete14;0
+Héroquest le début;14;Retour à Barak Tor;OBJ3;1quete14a;0
+La forterresse de Kellar;1;La grande porte;;2quete1a;0
+La forterresse de Kellar;1;La grande porte;C;2quete1b;0
+La forterresse de Kellar;1;La grande porte;OBJ2;2quete1c;0
+La forterresse de Kellar;2;Les galeries du guerrier;;2quete2a;0
+La forterresse de Kellar;2;Les galeries du guerrier;B;2quete2b;0
+La forterresse de Kellar;3;Le passage en colimaçon;;2quete3a;0
+La forterresse de Kellar;3;Le passage en colimaçon;C;2quete3b;0
+La forterresse de Kellar;3;Le passage en colimaçon;OBJ2;2quete3c;0
+La forterresse de Kellar;4;La forge des nains;;2quete4a;0
+La forterresse de Kellar;4;La forge des nains;C;2quete4b;0
+La forterresse de Kellar;4;La forge des nains;OBJ2;2quete4c;0
