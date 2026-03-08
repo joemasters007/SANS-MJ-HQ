@@ -607,8 +607,8 @@ border-radius:10px;
 
 /* ===== NORMALISATION CARTES ===== */
 #soloCards img{
-  width:340px;
-  height:400px;
+  width:726px;
+  height:867px;
   object-fit:cover;
   background:none;
 }
@@ -1281,9 +1281,8 @@ window.validatedObjectives = new Set();
 
 })();
 
-// ===== OBJECTIFS AVEC CONDITIONS (même logique que NOTES) =====
+// ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
 (async function(){
-
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
   if(!book || !num) return;
@@ -1296,58 +1295,26 @@ window.validatedObjectives = new Set();
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split(/
-?
-/).filter(l=>l.trim()!=="");
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
 
     for(let i=1;i<lines.length;i++){
-
       const cols = lines[i].split(";");
       if(cols.length < 4) continue;
 
       const csvBook = cols[0].trim();
       const csvNum  = cols[1].trim();
       const objNum  = cols[3].trim();
-      const condition = (cols[4] || "").trim();
-      const objTxt  = (cols[5] || "").trim();
+      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
 
-      if(csvBook !== book || csvNum !== num || !objNum) continue;
-
-      if(condition){
-
-        const required = condition
-          .split(",")
-          .map(c=>c.trim())
-          .filter(Boolean);
-
-        const ok = required.every(c => {
-
-          if(c.startsWith("OBJ")){
-            const num = c.replace("OBJ","");
-            return window.validatedObjectives &&
-                   window.validatedObjectives.has(num);
-          }
-
-          return document.querySelector(
-            `.note-square.read[data-letter="${c}"]`
-          );
-
-        });
-
-        if(!ok) continue;
+      if(csvBook === book && csvNum === num && objNum){
+        const d = document.createElement("div");
+        d.className = "objective-square";
+        d.textContent = objNum;
+        if(objTxt) d.dataset.text = objTxt;
+        container.appendChild(d);
       }
-
-      const d = document.createElement("div");
-      d.className = "objective-square";
-      d.textContent = objNum;
-
-      if(objTxt) d.dataset.text = objTxt;
-
-      container.appendChild(d);
     }
-
   }catch(e){}
-
 })();
 
 
@@ -1651,12 +1618,12 @@ displayedCards.forEach(c=>{
 
 const img = document.createElement("img");
 
-img.style.width = "340px";
-img.style.height = "400px";
+img.style.width = "726px";
+img.style.height = "867px";
 img.style.borderRadius = "0";
 img.style.border = "none";
 img.style.boxShadow = "none";
-img.style.objectFit = "contain";
+img.style.objectFit = "cover";
 
 img.src = "cartes/" + c.name + ".png";
 
@@ -2100,8 +2067,8 @@ container.innerHTML="";
 
 const img = document.createElement("img");
 
-img.style.width = "340px";
-img.style.height = "400px";
+img.style.width = "726px";
+img.style.height = "867px";
 img.style.objectFit = "cover";
 
 img.src = "cartes/" + card + ".jpg";
@@ -2229,9 +2196,9 @@ if(!img){
 
 img = document.createElement("img");
 
-img.style.width = "100%";
-img.style.height = "100%";
-img.style.objectFit = "contain";
+img.style.width = "726px";
+img.style.height = "867px";
+img.style.objectFit = "cover";
 
 container.appendChild(img);
 
