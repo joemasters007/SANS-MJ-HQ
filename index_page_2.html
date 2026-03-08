@@ -607,8 +607,8 @@ border-radius:10px;
 
 /* ===== NORMALISATION CARTES ===== */
 #soloCards img{
-  width:726px;
-  height:867px;
+  width:100%;
+  height:100%;
   object-fit:cover;
   background:none;
 }
@@ -1014,7 +1014,41 @@ const HQ_NUM   = localStorage.getItem("hq_quest_num");
 const HQ_TITLE = localStorage.getItem("hq_quest_title");
 
 
+// ===== LECTURE CSV MONSTRE ERRANT =====
+(async function(){
+  const book  = localStorage.getItem("hq_book");
+  const num   = localStorage.getItem("hq_quest_num");
 
+  if(!book || !num) return;
+
+  try{
+    const res = await fetch("monstre.csv");
+    if(!res.ok) return;
+
+    const text = await res.text();
+    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+
+    // ignore header
+    for(let i=1;i<lines.length;i++){
+      const cols = lines[i].split(";");
+      if(cols.length < 4) continue;
+
+      const csvBook = cols[0].trim();
+      const csvNum  = cols[1].trim();
+      const csvText = cols[3].trim();
+
+      if(csvBook === book && csvNum === num){
+        const target = document.getElementById("monster-text");
+        if(target){
+          target.textContent = csvText;
+        }
+        break;
+      }
+    }
+  }catch(e){
+    // silence volontaire
+  }
+})();
 
 
 // ===== MONSTRE ERRANT : LECTURE CSV =====
@@ -1153,6 +1187,7 @@ window.validatedObjectives = new Set();
     render();
     window.forceRenderNotes = render;
     if(typeof updatePlan==='function') updatePlan();
+    loadObjectifs();
 
   }catch(e){}
 
@@ -1241,14 +1276,16 @@ window.validatedObjectives = new Set();
       render();
     window.forceRenderNotes = render;
     if(typeof updatePlan==='function') updatePlan();
+    loadObjectifs();
     }
 
   });
 
 })();
 
-// ===== OBJECTIFS AVEC CONDITIONS =====
-(async function(){
+
+// ===== OBJECTIFS AVEC CONDITIONS (RENDER DYNAMIQUE) =====
+async function loadObjectifs(){
 
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
@@ -1256,6 +1293,8 @@ window.validatedObjectives = new Set();
 
   const container = document.getElementById("objectifs-slots");
   if(!container) return;
+
+  container.innerHTML = "";
 
   try{
     const res = await fetch("queteobjectif.csv");
@@ -1288,9 +1327,9 @@ window.validatedObjectives = new Set();
         const ok = required.every(c => {
 
           if(c.startsWith("OBJ")){
-            const num = c.replace("OBJ","");
+            const n = c.replace("OBJ","");
             return window.validatedObjectives &&
-                   window.validatedObjectives.has(num);
+                   window.validatedObjectives.has(n);
           }
 
           return document.querySelector(
@@ -1309,12 +1348,13 @@ window.validatedObjectives = new Set();
       if(objTxt) d.dataset.text = objTxt;
 
       container.appendChild(d);
-
     }
 
   }catch(e){}
+}
 
-})();
+loadObjectifs();
+
 
 
 
@@ -1368,6 +1408,7 @@ document.addEventListener("click", function(e){
     e.target.classList.add("read-objective");
     if(window.forceRenderNotes) window.forceRenderNotes();
     if(typeof updatePlan==='function') updatePlan();
+    loadObjectifs();
     modal.style.display = "block";
     document.getElementById("objectifBox").classList.add("objectif-open");
   }
@@ -1617,12 +1658,12 @@ displayedCards.forEach(c=>{
 
 const img = document.createElement("img");
 
-img.style.width = "726px";
-img.style.height = "867px";
+img.style.width = "100%";
+img.style.height = "100%";
 img.style.borderRadius = "0";
 img.style.border = "none";
 img.style.boxShadow = "none";
-img.style.objectFit = "cover";
+img.style.objectFit = "contain";
 
 img.src = "cartes/" + c.name + ".png";
 
@@ -2066,9 +2107,9 @@ container.innerHTML="";
 
 const img = document.createElement("img");
 
-img.style.width = "726px";
-img.style.height = "867px";
-img.style.objectFit = "cover";
+img.style.width = "100%";
+img.style.height = "100%";
+img.style.objectFit = "contain";
 
 img.src = "cartes/" + card + ".jpg";
 
@@ -2195,9 +2236,9 @@ if(!img){
 
 img = document.createElement("img");
 
-img.style.width = "726px";
-img.style.height = "867px";
-img.style.objectFit = "cover";
+img.style.width = "100%";
+img.style.height = "100%";
+img.style.objectFit = "contain";
 
 container.appendChild(img);
 
