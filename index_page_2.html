@@ -1014,41 +1014,7 @@ const HQ_NUM   = localStorage.getItem("hq_quest_num");
 const HQ_TITLE = localStorage.getItem("hq_quest_title");
 
 
-// ===== LECTURE CSV MONSTRE ERRANT =====
-(async function(){
-  const book  = localStorage.getItem("hq_book");
-  const num   = localStorage.getItem("hq_quest_num");
 
-  if(!book || !num) return;
-
-  try{
-    const res = await fetch("monstre.csv");
-    if(!res.ok) return;
-
-    const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
-
-    // ignore header
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(";");
-      if(cols.length < 4) continue;
-
-      const csvBook = cols[0].trim();
-      const csvNum  = cols[1].trim();
-      const csvText = cols[3].trim();
-
-      if(csvBook === book && csvNum === num){
-        const target = document.getElementById("monster-text");
-        if(target){
-          target.textContent = csvText;
-        }
-        break;
-      }
-    }
-  }catch(e){
-    // silence volontaire
-  }
-})();
 
 
 // ===== MONSTRE ERRANT : LECTURE CSV =====
@@ -1281,8 +1247,9 @@ window.validatedObjectives = new Set();
 
 })();
 
-// ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
+// ===== OBJECTIFS AVEC CONDITIONS =====
 (async function(){
+
   const book = localStorage.getItem("hq_book");
   const num  = localStorage.getItem("hq_quest_num");
   if(!book || !num) return;
@@ -1295,26 +1262,58 @@ window.validatedObjectives = new Set();
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+    const lines = text.split(/?
+/).filter(l=>l.trim()!=="");
 
     for(let i=1;i<lines.length;i++){
+
       const cols = lines[i].split(";");
       if(cols.length < 4) continue;
 
       const csvBook = cols[0].trim();
       const csvNum  = cols[1].trim();
       const objNum  = cols[3].trim();
-      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
+      const condition = (cols[4] || "").trim();
+      const objTxt  = (cols[5] || "").trim();
 
-      if(csvBook === book && csvNum === num && objNum){
-        const d = document.createElement("div");
-        d.className = "objective-square";
-        d.textContent = objNum;
-        if(objTxt) d.dataset.text = objTxt;
-        container.appendChild(d);
+      if(csvBook !== book || csvNum !== num || !objNum) continue;
+
+      if(condition){
+
+        const required = condition
+          .split(",")
+          .map(c=>c.trim())
+          .filter(Boolean);
+
+        const ok = required.every(c => {
+
+          if(c.startsWith("OBJ")){
+            const num = c.replace("OBJ","");
+            return window.validatedObjectives &&
+                   window.validatedObjectives.has(num);
+          }
+
+          return document.querySelector(
+            `.note-square.read[data-letter="${c}"]`
+          );
+
+        });
+
+        if(!ok) continue;
       }
+
+      const d = document.createElement("div");
+      d.className = "objective-square";
+      d.textContent = objNum;
+
+      if(objTxt) d.dataset.text = objTxt;
+
+      container.appendChild(d);
+
     }
+
   }catch(e){}
+
 })();
 
 
