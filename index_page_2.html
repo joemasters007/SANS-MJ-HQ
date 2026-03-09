@@ -1281,40 +1281,159 @@ window.validatedObjectives = new Set();
 
 })();
 
-// ===== OBJECTIFS : LECTURE CSV (NUMÉRO + TEXTE COLONNE 6) =====
+// ===== OBJECTIFS AVEC CONDITIONS =====
 (async function(){
-  const book = localStorage.getItem("hq_book");
-  const num  = localStorage.getItem("hq_quest_num");
-  if(!book || !num) return;
 
-  const container = document.getElementById("objectifs-slots");
-  if(!container) return;
+const book = localStorage.getItem("hq_book");
+const num  = localStorage.getItem("hq_quest_num");
 
-  try{
-    const res = await fetch("queteobjectif.csv");
-    if(!res.ok) return;
+if(!book || !num) return;
 
-    const text = await res.text();
-    const lines = text.split(/\r?\n/).filter(l=>l.trim()!=="");
+const container = document.getElementById("objectifs-slots");
+if(!container) return;
 
-    for(let i=1;i<lines.length;i++){
-      const cols = lines[i].split(";");
-      if(cols.length < 4) continue;
+let allObjectives = [];
 
-      const csvBook = cols[0].trim();
-      const csvNum  = cols[1].trim();
-      const objNum  = cols[3].trim();
-      const objTxt  = (cols.length >= 6 ? cols[5].trim() : "");
+try{
 
-      if(csvBook === book && csvNum === num && objNum){
-        const d = document.createElement("div");
-        d.className = "objective-square";
-        d.textContent = objNum;
-        if(objTxt) d.dataset.text = objTxt;
-        container.appendChild(d);
-      }
-    }
-  }catch(e){}
+const res = await fetch("queteobjectif.csv");
+if(!res.ok) return;
+
+const text = await res.text();
+const lines = text.split(/?
+/).filter(l=>l.trim()!=="");
+
+for(let i=1;i<lines.length;i++){
+
+const cols = lines[i].split(";");
+
+if(cols.length < 6) continue;
+
+const csvBook = cols[0].trim();
+const csvNum  = cols[1].trim();
+const objNum  = cols[3].trim();
+const condition = (cols[4] || "").trim();
+const textObj = (cols[5] || "").trim();
+
+if(csvBook === book && csvNum === num){
+
+allObjectives.push({
+num: objNum,
+condition: condition,
+text: textObj,
+order: i
+});
+
+}
+
+}
+
+renderObjectives();
+
+}catch(e){}
+
+function conditionMet(condition){
+
+if(!condition) return true;
+
+const required = condition
+.split(",")
+.map(c=>c.trim())
+.filter(Boolean);
+
+return required.every(c => {
+
+if(c.startsWith("OBJ")){
+const n = c.replace("OBJ","");
+return window.validatedObjectives.has(n);
+}
+
+return document.querySelector(`.note-square.read[data-letter="${c}"]`);
+
+});
+
+}
+
+function computeVisibleObjectives(){
+
+let visible = new Set();
+let changed = true;
+
+while(changed){
+
+changed = false;
+
+for(const obj of allObjectives){
+
+if(visible.has(obj.num)) continue;
+
+if(conditionMet(obj.condition)){
+
+visible.add(obj.num);
+changed = true;
+
+}
+
+}
+
+}
+
+return visible;
+
+}
+
+function renderObjectives(){
+
+const visible = computeVisibleObjectives();
+
+container.innerHTML = "";
+
+const ordered = allObjectives
+.filter(o => visible.has(o.num))
+.sort((a,b)=>a.order - b.order);
+
+for(const obj of ordered){
+
+const d = document.createElement("div");
+
+d.className = "objective-square";
+d.textContent = obj.num;
+
+if(obj.text) d.dataset.text = obj.text;
+
+if(window.validatedObjectives.has(obj.num)){
+d.classList.add("read-objective");
+}
+
+container.appendChild(d);
+
+}
+
+}
+
+document.addEventListener("click",function(e){
+
+if(
+e.target.classList &&
+e.target.classList.contains("objective-square") &&
+e.target.closest("#objectifs-slots")
+){
+
+const num = e.target.textContent.trim();
+
+if(!window.validatedObjectives.has(num)){
+window.validatedObjectives.add(num);
+}
+
+renderObjectives();
+
+if(window.forceRenderNotes) window.forceRenderNotes();
+if(typeof updatePlan==="function") updatePlan();
+
+}
+
+});
+
 })();
 
 
