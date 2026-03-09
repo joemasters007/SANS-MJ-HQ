@@ -1481,7 +1481,7 @@ document.addEventListener("click", function(e){
       div.style.marginTop = "20px";
       div.style.whiteSpace = "pre-line";
       div.textContent = txt;
-     document.getElementById("noteBox").appendChild(div);
+    document.getElementById("objectifBox").appendChild(div);
     }
 
     
@@ -1832,7 +1832,16 @@ function endSolo(){
 </div>
 
 
-<!-- NOTE MODALE SIMPLE -->
+
+<!-- NOTE MODALE -->
+<div id="noteModal" style="
+position:fixed;
+inset:0;
+display:none;
+background:rgba(0,0,0,0.8);
+z-index:10050;
+">
+
 <div id="noteBox" style="
 position:absolute;
 left:20px;
@@ -1856,17 +1865,7 @@ NOTE
 </h2>
 
 </div>
-  <div style="
-    background:#141418;
-    border:1px solid var(--gold);
-    border-radius:12px;
-    padding:18px 22px;
-    font-family:'Cinzel Decorative','Uncial Antiqua',serif;
-    color:var(--gold);
-    letter-spacing:2px;
-  ">
-    <div id="noteModalTitle">NOTE</div>
-  </div>
+
 </div>
 
 
