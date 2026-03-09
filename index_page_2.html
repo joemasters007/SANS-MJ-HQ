@@ -904,8 +904,7 @@ treasureFrame.addEventListener("click", async function(){
     if(!res.ok) return;
 
     const text = await res.text();
-    const lines = text.split("
-").filter(l=>l.trim() !== "");
+    const lines = text.split("\n").filter(l=>l.trim() !== "");
 
     let validCards = [];
 
@@ -1302,8 +1301,7 @@ const res = await fetch("queteobjectif.csv");
 if(!res.ok) return;
 
 const text = await res.text();
-const lines = text.split("
-").filter(l=>l.trim()!=="");
+const lines = text.split("\n").filter(l=>l.trim() !== "");
 
 for(let i=1;i<lines.length;i++){
 
