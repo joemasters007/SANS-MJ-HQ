@@ -1861,19 +1861,45 @@ function endSolo(){
   z-index:10060;
 ">
 
-  <div id="objectifBox" style="
-    position:absolute;
-    left:0;
-    top:50%;
-    transform:translateY(-50%);
-    width:55vw;
-    background:#141418;
-    border-right:2px solid var(--gold);
-    padding:40px;
-  ">
+ <div id="objectifBox" style="
+position:absolute;
+left:20px;
+top:50%;
+transform:translateY(-50%);
+width:48vw;
+max-width:900px;
+background:#141418;
+border:3px solid var(--gold);
+border-radius:14px;
+box-shadow:0 0 25px rgba(217,182,111,.5);
+padding:40px;
+display:flex;
+flex-direction:column;
+gap:20px;
+">
 
     <h2 id="objectifModalTitle" style="margin-top:0;">
       OBJECTIF
+<h2 id="objectifModalTitle" style="margin-top:0;">
+OBJECTIF
+</h2>
+
+<div id="objectifDice" style="
+display:flex;
+align-items:center;
+gap:12px;
+font-size:22px;
+margin-bottom:10px;
+">
+
+🎲 <span id="objDice1">1</span>
+🎲 <span id="objDice2">1</span>
+
+<button id="objRollDice" class="btn hq-btn">
+Lancer
+</button>
+
+</div>
     </h2>
 
   </div>
@@ -2327,6 +2353,26 @@ container.appendChild(img);
 img.src = "images/" + currentImage + ".png";
 
 }
+/* ===== DÉS OBJECTIF ===== */
+
+document.addEventListener("DOMContentLoaded", function(){
+
+const rollBtn = document.getElementById("objRollDice");
+
+if(!rollBtn) return;
+
+rollBtn.addEventListener("click", function(){
+
+const d1 = Math.floor(Math.random()*6)+1;
+const d2 = Math.floor(Math.random()*6)+1;
+
+document.getElementById("objDice1").textContent = d1;
+document.getElementById("objDice2").textContent = d2;
+
+});
+
+});
+
 </script>
 </body>
 </html>
