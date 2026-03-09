@@ -1113,20 +1113,13 @@ document.addEventListener("click", function(e){
       const div = document.createElement("div");
       div.className = "modal-text";
       
-      
-      
-      
-      
-      
-      
-      
+ 
       div.textContent = txt;
       title.after(div);
     }
 
     modal.style.display = "flex";
-    modal.style.alignItems = "center";
-    modal.style.justifyContent = "center";
+  
   }
 
   // clic hors de la fenêtre
@@ -1488,7 +1481,7 @@ document.addEventListener("click", function(e){
       div.style.marginTop = "20px";
       div.style.whiteSpace = "pre-line";
       div.textContent = txt;
-      title.after(div);
+     document.getElementById("noteBox").appendChild(div);
     }
 
     
@@ -1840,15 +1833,29 @@ function endSolo(){
 
 
 <!-- NOTE MODALE SIMPLE -->
-<div id="noteModal" style="
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  background:rgba(0,0,0,0.7);
-  z-index:10050;
+<div id="noteBox" style="
+position:absolute;
+left:20px;
+top:50%;
+transform:translateY(-50%);
+width:40vw;
+max-width:700px;
+background:#141418;
+border:3px solid #8b1a1a;
+border-radius:14px;
+box-shadow:
+0 0 12px rgba(139,26,26,.8),
+0 0 35px rgba(139,26,26,.6),
+inset 0 0 15px rgba(139,26,26,.4);
+padding:35px;
+color:var(--gold);
 ">
+
+<h2 id="noteModalTitle" class="hq-title">
+NOTE
+</h2>
+
+</div>
   <div style="
     background:#141418;
     border:1px solid var(--gold);
